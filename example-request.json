@@ -1,0 +1,44 @@
+{
+  "title": "Java 基础测试",
+  "audience": "初级开发者",
+  "purpose": "入职考核",
+  "questions": [
+    {
+      "id": 1,
+      "type": "SINGLE",
+      "content": "Java中int类型占用几个字节？",
+      "options": [
+        { "label": "A", "content": "2字节", "isCorrect": false },
+        { "label": "B", "content": "4字节", "isCorrect": true },
+        { "label": "C", "content": "8字节", "isCorrect": false },
+        { "label": "D", "content": "16字节", "isCorrect": false }
+      ],
+      "explanation": "在Java中，int类型固定为32位，即4字节。这是Java语言规范明确规定的，与平台无关。",
+      "reference": "Java语言规范 第4.2.1节"
+    },
+    {
+      "id": 2,
+      "type": "MULTI",
+      "content": "以下哪些是Java的访问修饰符？（多选）",
+      "options": [
+        { "label": "A", "content": "public", "isCorrect": true },
+        { "label": "B", "content": "private", "isCorrect": true },
+        { "label": "C", "content": "protected", "isCorrect": true },
+        { "label": "D", "content": "internal", "isCorrect": false }
+      ],
+      "explanation": "Java有四种访问修饰符：public、private、protected和默认（包级私有）。internal是C#的访问修饰符，不是Java的。",
+      "reference": "Java核心技术 卷I 第5章"
+    },
+    {
+      "id": 3,
+      "type": "JUDGE",
+      "content": "Java中的String是可变对象。",
+      "options": [
+        { "label": "A", "content": "正确", "isCorrect": false },
+        { "label": "B", "content": "错误", "isCorrect": true }
+      ],
+      "explanation": "String在Java中是不可变对象（immutable）。一旦创建，其内容不能被修改。如果需要可变字符串，应使用StringBuilder或StringBuffer。",
+      "reference": "Effective Java 第17条"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+# Spring Boot 应用配置
+spring:
+  application:
+    name: dify-quiz-service
+
+  # 数据库配置（复用 spring-mcps 的数据库）
+  datasource:
+    url: jdbc:postgresql://117.50.75.212:5432/dify
+    username: postgres
+    password: TyAdmin@2026
+    driver-class-name: org.postgresql.Driver
+
+  # JPA 配置
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
+
+  # Thymeleaf 配置
+  thymeleaf:
+    cache: false
+    mode: HTML
+
+# 服务端口
+server:
+  port: 8081
+
+# 应用配置
+app:
+  # MinIO 配置（复用 spring-mcps 的 MinIO）
+  minio:
+    endpoint: ${S3_ENDPOINT:http://117.50.75.212:9000}
+    access-key: ${S3_ACCESS_KEY:minioadmin}
+    secret-key: ${S3_SECRET_KEY:TyAdmin@2026}
+    bucket-name: ${S3_BUCKET_NAME:ty-ai-flow}
+    region: ${S3_REGION:us-east-1}
+    # 试卷文件上传路径
+    upload-path: ${QUIZ_UPLOAD_PATH:quiz-files/}
+    # 公开访问 URL 前缀
+    public-url-prefix: ${QUIZ_PUBLIC_URL:http://117.50.75.212:9000/ty-ai-flow}
+
+  # 试卷评分配置
+  quiz:
+    default-pass-score: 60
+    default-excellent-score: 80
+
+# 日志配置
+logging:
+  level:
+    com.example.quiz: DEBUG

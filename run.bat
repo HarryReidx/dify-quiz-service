@@ -1,0 +1,3 @@
+@echo off
+echo Starting Dify Quiz Service...
+mvn spring-boot:run
