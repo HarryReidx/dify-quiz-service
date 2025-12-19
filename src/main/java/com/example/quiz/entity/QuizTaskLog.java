@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.domain.Persistable;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
@@ -21,10 +23,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("mcp_quiz_task_logs")
-public class QuizTaskLog {
+public class QuizTaskLog implements Persistable<UUID> {
 
     @Id
     private UUID id;
+
+    @Transient
+    @Builder.Default
+    private boolean isNew = true;
 
     @Column("task_id")
     private UUID taskId;
@@ -37,4 +43,13 @@ public class QuizTaskLog {
 
     @Column("created_at")
     private LocalDateTime createdAt;
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void markNotNew() {
+        this.isNew = false;
+    }
 }

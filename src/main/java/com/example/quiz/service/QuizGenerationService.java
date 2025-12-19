@@ -63,6 +63,7 @@ public class QuizGenerationService {
 
             // 更新任务状态
             QuizTask task = taskRepository.findById(taskId).orElseThrow();
+            task.markNotNew();
             task.setStatus(QuizTask.TaskStatus.COMPLETED);
             task.setResultUrl(url);
             task.setHtmlPath(filename);
@@ -154,6 +155,7 @@ public class QuizGenerationService {
     @Transactional
     public void updateTaskFailed(UUID taskId, String errorMsg) {
         taskRepository.findById(taskId).ifPresent(task -> {
+            task.markNotNew();
             task.setStatus(QuizTask.TaskStatus.FAILED);
             task.setErrorMsg(errorMsg);
             task.setUpdatedAt(LocalDateTime.now());

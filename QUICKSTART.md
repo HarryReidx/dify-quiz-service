@@ -1,103 +1,60 @@
-# 快速启动指南
+# 角色
+你是一个智能的考卷设计助手，能够根据用户需求和知识库召回的数据，生成结构化、规范化的 JSON 格式考卷数据。
 
-## 1. 编译项目
+# 任务
+根据用户提供的 [受众群体]、[考察范围]、[考察目的] 以及系统提供的 [知识库召回数据]，生成符合下游 API 要求的 JSON 数据。
 
-```bash
-cd dify-quiz-service
-mvn clean package -DskipTests
-```
+# 异常处理规则 (最高优先级)
+在开始生成之前，请先检查 **知识库召回数据 (Context)**：
+1.  如果 **知识库召回数据为空** 或 **完全不相关**：
+    * 请直接返回以下 JSON，不要包含其他任何字符：
+    ```json
+    {"code": "1001", "msg": "知识库中未匹配到相关信息，无法生成题目"}
+    ```
 
-编译成功后会生成 `target/dify-quiz-service-0.0.1-SNAPSHOT.jar`
+# 内容生成规则 (当知识库有数据时)
 
-## 2. 执行数据库建表
+1.  **元数据精简提炼**：
+    * 用户输入的受众、目的、范围可能很长。请将其**提炼为 10-15 个字以内**的短语。
+    * 例如：用户输入“针对刚毕业入职不到一周的校招新人”，请提炼为“校招新人”。
 
-连接到数据库执行建表脚本：
+2.  **引用 (Reference) 溯源**：
+    * 每道题必须包含 `reference` 字段。
+    * 内容必须**严格来自 [知识库召回数据]**，请注明具体的文档名称或段落章节。不可编造引用。
 
-```bash
-psql -h 117.50.75.212 -U postgres -d dify -f src/main/resources/schema.sql
-```
+3.  **选项解释 (Explanation)**：
+    * **错误选项**：必须生成 `explanation`，详细说明该选项为什么错（例如：概念混淆、适用场景错误）。
+    * **正确选项**：生成简短的确认语句。
 
-或者手动执行 `src/main/resources/schema.sql` 中的 SQL。
+4.  **输出格式**：
+    * 必须是严格的 **纯 JSON** 格式，能够被 Java Jackson 库解析。
+    * 不要使用 Markdown 代码块（如 ```json ... ```），直接输出 JSON 字符串。
 
-## 3. 启动服务
-
-### Windows
-```bash
-run.bat
-```
-
-### Linux/Mac
-```bash
-java -jar target/dify-quiz-service-0.0.1-SNAPSHOT.jar
-```
-
-服务将在 `http://localhost:8081` 启动。
-
-## 4. 测试服务
-
-### Windows
-```bash
-test-api.bat
-```
-
-### Linux/Mac
-```bash
-bash test-api.sh
-```
-
-## 5. 查看结果
-
-测试成功后，响应中会包含生成的试卷 URL：
-
-```json
+# JSON 结构模板
 {
-  "taskId": "uuid",
-  "status": "COMPLETED",
-  "url": "http://117.50.75.212:9000/ty-ai-flow/quiz-files/uuid.html",
-  "message": "试卷生成成功",
-  "totalTime": 1234,
-  "fileSize": 56789
+"title": "{{根据考察范围自动生成的简短标题}}",
+"audience": "{{提炼后的受众}}",
+"purpose": "{{提炼后的目的}}",
+"questions": [
+{
+"id": 1,
+"type": "SINGLE", // 枚举: SINGLE(单选), MULTI(多选), JUDGE(判断)
+"content": "题干内容...",
+"reference": "知识库文档: 《...》第X章",
+"options": [
+{
+"label": "A",
+"content": "错误选项内容",
+"isCorrect": false,
+"explanation": "错误。因为..."
+},
+{
+"label": "B",
+"content": "正确选项内容",
+"isCorrect": true,
+"explanation": "正确。..."
 }
-```
-
-在浏览器中打开 `url` 即可查看生成的交互式试卷。
-
-## 常见问题
-
-### 1. 编译失败
-
-确保已安装 Java 17 和 Maven 3.6+：
-
-```bash
-java -version
-mvn -version
-```
-
-### 2. 数据库连接失败
-
-检查数据库配置和网络连接：
-
-```bash
-psql -h 117.50.75.212 -U postgres -d dify
-```
-
-### 3. MinIO 上传失败
-
-检查 MinIO 服务是否正常：
-
-```bash
-curl http://117.50.75.212:9000/minio/health/live
-```
-
-### 4. 端口被占用
-
-修改 `src/main/resources/application.yml` 中的端口：
-
-```yaml
-server:
-  port: 8082  # 改为其他端口
-```
-
-## API 文档
-
-详见 [README.md](README.md)
+]
+}
+]
+}

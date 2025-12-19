@@ -293,10 +293,34 @@ REST API 控制器，提供：
 
 - ✅ 项目结构完整
 - ✅ 代码编译通过
-- ✅ 数据库脚本就绪
+- ✅ 数据库表已创建
+- ✅ 服务启动成功
+- ✅ API 测试通过
 - ✅ 文档完整
-- ⏳ 待执行数据库建表
-- ⏳ 待启动测试
+- ✅ 试卷生成功能正常
+- ✅ MinIO 文件上传正常
+- ✅ 选项级错误解析功能
+- ✅ 引用文献悬停功能
+- ✅ 题型视觉区分优化
+- ✅ 按钮样式和交互优化
+
+## 已解决的问题
+
+### 1. Spring Data JDBC UUID 主键问题
+**问题**: 使用 UUID 作为主键时，Spring Data JDBC 默认执行 UPDATE 而不是 INSERT
+**解决方案**: 
+- 实体类实现 `Persistable<UUID>` 接口
+- 添加 `@Transient @Builder.Default private boolean isNew = true;` 字段
+- 实现 `isNew()` 方法返回该字段
+- 在更新实体前调用 `markNotNew()` 方法
+
+### 2. JSONB 类型转换问题
+**问题**: PostgreSQL 的 JSONB 类型无法直接映射到 String
+**解决方案**: 将数据库字段类型从 JSONB 改为 TEXT
+
+### 3. Lombok @Builder 忽略字段初始化
+**问题**: `@Builder` 会忽略字段的初始化表达式
+**解决方案**: 使用 `@Builder.Default` 注解标记需要默认值的字段
 
 ## 常见问题
 
@@ -324,6 +348,12 @@ curl http://117.50.75.212:9000/minio/health/live
 ```yaml
 server:
   port: 8082  # 改为其他端口
+```
+
+### 5. 重新初始化数据库
+如果需要重新创建数据库表：
+```bash
+java -jar target/dify-quiz-service-0.0.1-SNAPSHOT.jar --spring.profiles.active=init
 ```
 
 ## 文档索引

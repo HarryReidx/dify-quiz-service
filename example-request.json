@@ -7,38 +7,88 @@
       "id": 1,
       "type": "SINGLE",
       "content": "Java中int类型占用几个字节？",
+      "reference": "Java语言规范 第4.2.1节",
+      "generalExplanation": "在Java中，int类型固定为32位，即4字节。这是Java语言规范明确规定的，与平台无关。",
       "options": [
-        { "label": "A", "content": "2字节", "isCorrect": false },
-        { "label": "B", "content": "4字节", "isCorrect": true },
-        { "label": "C", "content": "8字节", "isCorrect": false },
-        { "label": "D", "content": "16字节", "isCorrect": false }
-      ],
-      "explanation": "在Java中，int类型固定为32位，即4字节。这是Java语言规范明确规定的，与平台无关。",
-      "reference": "Java语言规范 第4.2.1节"
+        { 
+          "label": "A", 
+          "content": "2字节", 
+          "isCorrect": false,
+          "explanation": "错误。2字节是short类型的长度，不是int。short占用16位（2字节）。"
+        },
+        { 
+          "label": "B", 
+          "content": "4字节", 
+          "isCorrect": true,
+          "explanation": "正确！int在Java中固定为32位，即4字节。这是跨平台一致的。"
+        },
+        { 
+          "label": "C", 
+          "content": "8字节", 
+          "isCorrect": false,
+          "explanation": "错误。8字节是long类型的长度，不是int。long占用64位（8字节）。"
+        },
+        { 
+          "label": "D", 
+          "content": "16字节", 
+          "isCorrect": false,
+          "explanation": "错误。Java中没有16字节的基本整数类型。最大的是long（8字节）。"
+        }
+      ]
     },
     {
       "id": 2,
       "type": "MULTI",
       "content": "以下哪些是Java的访问修饰符？（多选）",
+      "reference": "Java核心技术 卷I 第5章",
+      "generalExplanation": "Java有四种访问修饰符：public、private、protected和默认（包级私有）。它们控制类、方法和字段的可见性。",
       "options": [
-        { "label": "A", "content": "public", "isCorrect": true },
-        { "label": "B", "content": "private", "isCorrect": true },
-        { "label": "C", "content": "protected", "isCorrect": true },
-        { "label": "D", "content": "internal", "isCorrect": false }
-      ],
-      "explanation": "Java有四种访问修饰符：public、private、protected和默认（包级私有）。internal是C#的访问修饰符，不是Java的。",
-      "reference": "Java核心技术 卷I 第5章"
+        { 
+          "label": "A", 
+          "content": "public", 
+          "isCorrect": true,
+          "explanation": "正确！public是Java的访问修饰符，表示公开访问，任何地方都可以访问。"
+        },
+        { 
+          "label": "B", 
+          "content": "private", 
+          "isCorrect": true,
+          "explanation": "正确！private是Java的访问修饰符，表示私有访问，只能在类内部访问。"
+        },
+        { 
+          "label": "C", 
+          "content": "protected", 
+          "isCorrect": true,
+          "explanation": "正确！protected是Java的访问修饰符，表示受保护访问，可在同包和子类中访问。"
+        },
+        { 
+          "label": "D", 
+          "content": "internal", 
+          "isCorrect": false,
+          "explanation": "错误。internal是C#的访问修饰符，不是Java的。Java使用默认（包级私有）访问。"
+        }
+      ]
     },
     {
       "id": 3,
       "type": "JUDGE",
       "content": "Java中的String是可变对象。",
+      "reference": "Effective Java 第17条",
+      "generalExplanation": "String在Java中是不可变对象（immutable）。一旦创建，其内容不能被修改。如果需要可变字符串，应使用StringBuilder或StringBuffer。",
       "options": [
-        { "label": "A", "content": "正确", "isCorrect": false },
-        { "label": "B", "content": "错误", "isCorrect": true }
-      ],
-      "explanation": "String在Java中是不可变对象（immutable）。一旦创建，其内容不能被修改。如果需要可变字符串，应使用StringBuilder或StringBuffer。",
-      "reference": "Effective Java 第17条"
+        { 
+          "label": "A", 
+          "content": "正确", 
+          "isCorrect": false,
+          "explanation": "错误。String是不可变的（immutable）。任何看似修改String的操作实际上都会创建新的String对象。"
+        },
+        { 
+          "label": "B", 
+          "content": "错误", 
+          "isCorrect": true,
+          "explanation": "正确！String确实是不可变对象。这种设计保证了线程安全和字符串常量池的有效性。"
+        }
+      ]
     }
   ]
 }

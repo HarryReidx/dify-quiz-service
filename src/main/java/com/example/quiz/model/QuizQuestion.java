@@ -28,8 +28,14 @@ public class QuizQuestion {
     @Valid
     private List<QuizOption> options;
 
-    private String explanation;
+    /**
+     * 全局解析（整道题的解析，可选）
+     */
+    private String generalExplanation;
 
+    /**
+     * 参考文献（用于悬停展示）
+     */
     private String reference;
 
     /**

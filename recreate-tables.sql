@@ -1,3 +1,7 @@
+-- 删除旧表
+DROP TABLE IF EXISTS mcp_quiz_task_logs CASCADE;
+DROP TABLE IF EXISTS mcp_quiz_tasks CASCADE;
+
 -- Quiz Tasks Table (与 mcp_ingest_tasks 风格保持一致)
 CREATE TABLE IF NOT EXISTS mcp_quiz_tasks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

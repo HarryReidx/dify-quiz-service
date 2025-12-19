@@ -21,4 +21,9 @@ public class QuizOption {
     @NotNull(message = "必须指定选项是否正确")
     @JsonProperty("isCorrect")
     private Boolean isCorrect;
+
+    /**
+     * 选项级解释（选中此项后的反馈）
+     */
+    private String explanation;
 }
