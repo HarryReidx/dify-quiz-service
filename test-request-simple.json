@@ -1,0 +1,82 @@
+{
+  "title": "快速测试 - 6道题",
+  "audience": "测试用户",
+  "purpose": "功能测试",
+  "basis": "基于《软件工程基础》教材和行业最佳实践",
+  "questions": [
+    {
+      "id": 1,
+      "type": "SINGLE",
+      "content": "1 + 1 = ?",
+      "reference": "参考：《小学数学》第一册，第10页",
+      "options": [
+        {"label": "A", "content": "1", "isCorrect": false, "explanation": "太小了，1+1不等于1"},
+        {"label": "B", "content": "2", "isCorrect": true, "explanation": "正确！1+1=2是基础的加法运算"},
+        {"label": "C", "content": "3", "isCorrect": false, "explanation": "太大了，1+1不等于3"}
+      ],
+      "generalExplanation": "这是基础的加法运算。两个1相加等于2。"
+    },
+    {
+      "id": 2,
+      "type": "SINGLE",
+      "content": "太阳从哪边升起？",
+      "reference": "参考：《地理常识》第三章，地球自转与公转",
+      "options": [
+        {"label": "A", "content": "东方", "isCorrect": true, "explanation": "正确！太阳从东方升起是由于地球自西向东自转"},
+        {"label": "B", "content": "西方", "isCorrect": false, "explanation": "错误，太阳从西方落下，不是升起"},
+        {"label": "C", "content": "南方", "isCorrect": false, "explanation": "不对，南方不是太阳升起的方向"},
+        {"label": "D", "content": "北方", "isCorrect": false, "explanation": "不对，北方不是太阳升起的方向"}
+      ],
+      "generalExplanation": "由于地球自西向东自转，我们看到太阳从东方升起，西方落下。"
+    },
+    {
+      "id": 3,
+      "type": "MULTI",
+      "content": "以下哪些是水果？",
+      "reference": "参考：《植物学基础》第五章，果实分类",
+      "options": [
+        {"label": "A", "content": "苹果", "isCorrect": true, "explanation": "苹果是蔷薇科苹果属植物的果实"},
+        {"label": "B", "content": "香蕉", "isCorrect": true, "explanation": "香蕉是芭蕉科芭蕉属植物的果实"},
+        {"label": "C", "content": "土豆", "isCorrect": false, "explanation": "土豆是茎块，不是果实"},
+        {"label": "D", "content": "橙子", "isCorrect": true, "explanation": "橙子是芸香科柑橘属植物的果实"}
+      ],
+      "generalExplanation": "水果通常是指植物的果实，含有丰富的维生素和纤维。土豆是块茎，属于蔬菜类。"
+    },
+    {
+      "id": 4,
+      "type": "MULTI",
+      "content": "以下哪些是编程语言？",
+      "reference": "参考：《计算机程序设计语言》第一章",
+      "options": [
+        {"label": "A", "content": "Java", "isCorrect": true, "explanation": "Java 是一种面向对象的编程语言"},
+        {"label": "B", "content": "Python", "isCorrect": true, "explanation": "Python 是一种解释型、高级编程语言"},
+        {"label": "C", "content": "HTML", "isCorrect": false, "explanation": "HTML 是超文本标记语言，不是编程语言"},
+        {"label": "D", "content": "JavaScript", "isCorrect": true, "explanation": "JavaScript 是一种脚本编程语言"},
+        {"label": "E", "content": "CSS", "isCorrect": false, "explanation": "CSS 是层叠样式表语言，用于描述样式"}
+      ],
+      "generalExplanation": "编程语言是用于编写计算机程序的形式语言。HTML和CSS是标记/样式语言，不具备完整的编程能力。"
+    },
+    {
+      "id": 5,
+      "type": "JUDGE",
+      "content": "地球是圆的。",
+      "reference": "参考：《地球科学概论》第二章，地球的形状",
+      "options": [
+        {"label": "A", "content": "正确", "isCorrect": true, "explanation": "地球是一个近似球体（椭球体）"},
+        {"label": "B", "content": "错误", "isCorrect": false, "explanation": "地球确实是圆的（椭球体），不是平的"}
+      ],
+      "generalExplanation": "地球是一个略扁的椭球体，赤道半径约6378千米，极半径约6357千米。"
+    },
+    {
+      "id": 6,
+      "type": "JUDGE",
+      "content": "一年有 365 天。",
+      "reference": "参考：《天文学基础》第四章，历法系统",
+      "options": [
+        {"label": "A", "content": "正确", "isCorrect": false, "explanation": "不完全正确，平年365天，闰年366天"},
+        {"label": "B", "content": "错误", "isCorrect": true, "explanation": "正确！需要考虑闰年的情况，闰年有366天"}
+      ],
+      "generalExplanation": "平年有365天，闰年有366天。闰年每4年出现一次（能被4整除但不能被100整除，或能被400整除）。"
+    }
+  ]
+}

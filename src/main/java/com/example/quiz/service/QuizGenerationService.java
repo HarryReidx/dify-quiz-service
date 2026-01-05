@@ -42,7 +42,7 @@ public class QuizGenerationService {
     @Transactional
     public Map<String, Object> createAndExecuteTaskSync(QuizRequest request) {
         long startTime = System.currentTimeMillis();
-        UUID taskId = null;
+        String taskId = null;
 
         try {
             // 创建任务
@@ -76,7 +76,7 @@ public class QuizGenerationService {
 
             // 构建响应
             Map<String, Object> response = new HashMap<>();
-            response.put("taskId", taskId.toString());
+            response.put("taskId", taskId);
             response.put("status", "COMPLETED");
             response.put("url", url);
             response.put("message", "试卷生成成功");
@@ -93,7 +93,7 @@ public class QuizGenerationService {
             }
 
             Map<String, Object> response = new HashMap<>();
-            response.put("taskId", taskId != null ? taskId.toString() : null);
+            response.put("taskId", taskId);
             response.put("status", "FAILED");
             response.put("message", "试卷生成失败: " + e.getMessage());
             return response;
@@ -107,9 +107,9 @@ public class QuizGenerationService {
      * @return 任务 ID
      */
     @Transactional
-    public UUID createTask(QuizRequest request) {
+    public String createTask(QuizRequest request) {
         try {
-            UUID taskId = UUID.randomUUID();
+            String taskId = UUID.randomUUID().toString();
             QuizTask task = QuizTask.builder()
                     .id(taskId)
                     .title(request.getTitle())
@@ -153,7 +153,7 @@ public class QuizGenerationService {
      * @param errorMsg 错误信息
      */
     @Transactional
-    public void updateTaskFailed(UUID taskId, String errorMsg) {
+    public void updateTaskFailed(String taskId, String errorMsg) {
         taskRepository.findById(taskId).ifPresent(task -> {
             task.markNotNew();
             task.setStatus(QuizTask.TaskStatus.FAILED);
@@ -170,10 +170,10 @@ public class QuizGenerationService {
      * @param level 日志级别
      * @param message 日志消息
      */
-    private void addLog(UUID taskId, String level, String message) {
+    private void addLog(String taskId, String level, String message) {
         try {
             QuizTaskLog log = QuizTaskLog.builder()
-                    .id(UUID.randomUUID())
+                    .id(UUID.randomUUID().toString())
                     .taskId(taskId)
                     .logLevel(level)
                     .message(message)

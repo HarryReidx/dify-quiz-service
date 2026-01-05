@@ -58,7 +58,7 @@ public class QuizController {
      */
     @GetMapping("/task/{taskId}")
     public ResponseEntity<?> getTask(@PathVariable String taskId) {
-        return taskRepository.findById(UUID.fromString(taskId))
+        return taskRepository.findById(taskId)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -68,7 +68,7 @@ public class QuizController {
      */
     @GetMapping("/task/{taskId}/logs")
     public ResponseEntity<?> getTaskLogs(@PathVariable String taskId) {
-        return ResponseEntity.ok(taskLogRepository.findByTaskIdOrderByCreatedAtDesc(UUID.fromString(taskId)));
+        return ResponseEntity.ok(taskLogRepository.findByTaskIdOrderByCreatedAtDesc(taskId));
     }
 
     /**

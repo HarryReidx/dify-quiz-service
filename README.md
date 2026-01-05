@@ -6,8 +6,8 @@
 
 - **Language**: Java 17
 - **Framework**: Spring Boot 3.5.5
-- **Database**: PostgreSQL 12+ (复用 spring-mcps 数据库)
-- **Storage**: MinIO 8.5.7 (复用 spring-mcps MinIO)
+- **Database**: MySQL 8.0+ (复用 dify 数据库)
+- **Storage**: MinIO 8.5.7 (复用 MinIO 存储)
 - **HTTP Client**: OkHttp 4.12.0
 - **Build Tool**: Maven
 - **Template Engine**: Thymeleaf
@@ -16,9 +16,10 @@
 
 - 接收结构化 JSON 请求生成交互式 HTML 试卷
 - 支持单选题、多选题、判断题
+- 支持考试模式和练习模式（闪卡）
 - 自动评分和错题解析
 - MinIO 对象存储集成
-- PostgreSQL 任务状态管理和日志记录
+- MySQL 任务状态管理和日志记录
 
 ## API 接口
 
@@ -53,7 +54,7 @@
 {
   "taskId": "uuid",
   "status": "COMPLETED",
-  "url": "http://117.50.75.212:9000/ty-ai-flow/quiz-files/uuid.html",
+  "url": "http://117.50.226.140:9000/ty-ai-flow/quiz-files/uuid.html",
   "message": "试卷生成成功",
   "totalTime": 1234,
   "fileSize": 56789
@@ -76,26 +77,37 @@
 
 ### 1. 数据库准备
 
-**复用 spring-mcps 的数据库**，执行建表脚本：
+执行建表脚本：
 
+**方式一：使用批处理脚本（推荐）**
 ```bash
-psql -h 117.50.75.212 -U postgres -d dify -f src/main/resources/schema.sql
+# Windows
+init-mysql.bat
+
+# 或者测试连接
+test-mysql-connection.bat
+```
+
+**方式二：手动执行 SQL**
+```bash
+mysql -h 117.50.226.140 -P 3306 -u root -pTyAdmin@2026 dify < recreate-tables-mysql.sql
 ```
 
 ### 2. 配置文件
 
-默认配置已设置为复用 spring-mcps 的数据库和 MinIO：
+默认配置已设置为使用 MySQL 数据库和 MinIO：
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://117.50.75.212:5432/dify
-    username: postgres
+    url: jdbc:mysql://117.50.226.140:3306/dify?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
     password: TyAdmin@2026
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 app:
   minio:
-    endpoint: http://117.50.75.212:9000
+    endpoint: http://117.50.226.140:9000
     access-key: minioadmin
     secret-key: TyAdmin@2026
     bucket-name: ty-ai-flow
@@ -125,42 +137,52 @@ bash test-api.sh
 ## 数据库表结构
 
 ```sql
--- 试卷任务表
+-- 试卷任务表 (MySQL)
 CREATE TABLE mcp_quiz_tasks (
-    id UUID PRIMARY KEY,
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
     title VARCHAR(500) NOT NULL,
     audience VARCHAR(200),
     purpose VARCHAR(200),
     status VARCHAR(20) NOT NULL,
-    original_request JSONB NOT NULL,
+    original_request TEXT NOT NULL,
     result_url TEXT,
     html_path TEXT,
-    score_rules JSONB,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
+    score_rules TEXT,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     error_msg TEXT,
     total_questions INTEGER,
     file_size BIGINT
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 任务日志表
+-- 任务日志表 (MySQL)
 CREATE TABLE mcp_quiz_task_logs (
-    id UUID PRIMARY KEY,
-    task_id UUID NOT NULL REFERENCES mcp_quiz_tasks(id),
+    id CHAR(36) PRIMARY KEY DEFAULT (UUID()),
+    task_id CHAR(36) NOT NULL,
     log_level VARCHAR(20) NOT NULL,
     message TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL
-);
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES mcp_quiz_tasks(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
 ## 生成的 HTML 功能
 
+### 考试模式
 - ✅ Bootstrap 5 + FontAwesome 现代化设计
 - ✅ 实时答题进度条
 - ✅ 单选互斥、多选可取消
 - ✅ 智能评分（多选题部分分）
 - ✅ 错题高亮和解析显示
 - ✅ 重新答题功能
+
+### 练习模式（闪卡）✨新增
+- ✅ 卡片式交互设计
+- ✅ 3D 翻转动画效果
+- ✅ 逐题练习，即时反馈
+- ✅ 实时统计（答对/答错/总题数）
+- ✅ 详细的答案解析
+- ✅ 上一题/下一题导航
 
 ## 项目结构
 
@@ -208,7 +230,7 @@ dify-quiz-service/
 
 ## 与 spring-mcps 的集成
 
-- 复用相同的 PostgreSQL 数据库 (dify)
+- 复用相同的 MySQL 数据库 (dify)
 - 复用相同的 MinIO 存储 (ty-ai-flow bucket)
 - 遵循相同的代码风格和架构模式
 - 使用相同的表命名规范 (mcp_* 前缀)

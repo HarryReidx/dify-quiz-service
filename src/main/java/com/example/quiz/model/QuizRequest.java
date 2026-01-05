@@ -23,6 +23,12 @@ public class QuizRequest {
     @NotBlank(message = "考察目的不能为空")
     private String purpose;
 
+    /**
+     * 出题依据（可选）
+     * 用于说明题目的来源或参考资料
+     */
+    private String basis;
+
     @NotEmpty(message = "题目列表不能为空")
     @Valid
     private List<QuizQuestion> questions;

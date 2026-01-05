@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 /**
  * 试卷生成响应模型
  *
@@ -17,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuizResponse {
-    private UUID taskId;
+    private String taskId;
     private String status;
     private String url;
     private String message;

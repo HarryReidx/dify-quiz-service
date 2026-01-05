@@ -11,7 +11,6 @@ import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * 试卷生成任务实体
@@ -23,10 +22,10 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table("mcp_quiz_tasks")
-public class QuizTask implements Persistable<UUID> {
+public class QuizTask implements Persistable<String> {
 
     @Id
-    private UUID id;
+    private String id;
 
     @Transient
     @Builder.Default

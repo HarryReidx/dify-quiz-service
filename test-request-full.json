@@ -1,0 +1,193 @@
+{
+  "title": "Java 基础知识测试",
+  "audience": "Java 初级开发者",
+  "purpose": "技能评估",
+  "questions": [
+    {
+      "id": 1,
+      "type": "SINGLE",
+      "content": "Java 中 int 类型占用多少字节？",
+      "options": [
+        {
+          "label": "A",
+          "content": "2 字节",
+          "isCorrect": false,
+          "explanation": "2 字节是 short 类型的大小"
+        },
+        {
+          "label": "B",
+          "content": "4 字节",
+          "isCorrect": true,
+          "explanation": "正确！int 在 Java 中固定为 32 位，即 4 字节"
+        },
+        {
+          "label": "C",
+          "content": "8 字节",
+          "isCorrect": false,
+          "explanation": "8 字节是 long 类型的大小"
+        },
+        {
+          "label": "D",
+          "content": "取决于操作系统",
+          "isCorrect": false,
+          "explanation": "Java 的基本类型大小是固定的，不依赖操作系统"
+        }
+      ],
+      "generalExplanation": "Java 语言规范明确规定了基本数据类型的大小，int 类型始终占用 4 字节（32 位），这是 Java 跨平台特性的重要保证。",
+      "reference": "《Java 语言规范》第 4.2.1 节"
+    },
+    {
+      "id": 2,
+      "type": "SINGLE",
+      "content": "以下哪个关键字用于定义常量？",
+      "options": [
+        {
+          "label": "A",
+          "content": "const",
+          "isCorrect": false,
+          "explanation": "const 是保留字但在 Java 中未使用"
+        },
+        {
+          "label": "B",
+          "content": "final",
+          "isCorrect": true,
+          "explanation": "正确！final 关键字用于声明常量、防止继承和方法重写"
+        },
+        {
+          "label": "C",
+          "content": "static",
+          "isCorrect": false,
+          "explanation": "static 用于定义类级别的成员，不是用于定义常量"
+        },
+        {
+          "label": "D",
+          "content": "constant",
+          "isCorrect": false,
+          "explanation": "constant 不是 Java 关键字"
+        }
+      ],
+      "generalExplanation": "在 Java 中，final 关键字有多种用途：修饰变量表示常量、修饰方法表示不可重写、修饰类表示不可继承。常量通常使用 static final 组合定义。",
+      "reference": "《Effective Java》第 17 条"
+    },
+    {
+      "id": 3,
+      "type": "MULTI",
+      "content": "以下哪些是 Java 的访问修饰符？（多选）",
+      "options": [
+        {
+          "label": "A",
+          "content": "public",
+          "isCorrect": true,
+          "explanation": "public 是访问修饰符，表示公开访问"
+        },
+        {
+          "label": "B",
+          "content": "private",
+          "isCorrect": true,
+          "explanation": "private 是访问修饰符，表示私有访问"
+        },
+        {
+          "label": "C",
+          "content": "protected",
+          "isCorrect": true,
+          "explanation": "protected 是访问修饰符，表示受保护访问"
+        },
+        {
+          "label": "D",
+          "content": "default",
+          "isCorrect": false,
+          "explanation": "default 不是关键字，包级访问是通过不写修饰符实现的"
+        },
+        {
+          "label": "E",
+          "content": "internal",
+          "isCorrect": false,
+          "explanation": "internal 不是 Java 关键字，这是 C# 的访问修饰符"
+        }
+      ],
+      "generalExplanation": "Java 有四种访问级别：public（公开）、protected（受保护）、包级别（无修饰符）、private（私有）。其中 public、protected、private 是关键字。",
+      "reference": "《Java 核心技术》卷 I 第 5 章"
+    },
+    {
+      "id": 4,
+      "type": "MULTI",
+      "content": "关于 String 类，以下说法正确的是？（多选）",
+      "options": [
+        {
+          "label": "A",
+          "content": "String 是不可变类",
+          "isCorrect": true,
+          "explanation": "正确！String 对象一旦创建就不能修改"
+        },
+        {
+          "label": "B",
+          "content": "String 是 final 类",
+          "isCorrect": true,
+          "explanation": "正确！String 类被声明为 final，不能被继承"
+        },
+        {
+          "label": "C",
+          "content": "String 使用 + 拼接效率很高",
+          "isCorrect": false,
+          "explanation": "错误！频繁使用 + 拼接会创建大量临时对象，应使用 StringBuilder"
+        },
+        {
+          "label": "D",
+          "content": "String 对象存储在字符串常量池中",
+          "isCorrect": true,
+          "explanation": "正确！字面量字符串会被存储在字符串常量池中以提高性能"
+        },
+        {
+          "label": "E",
+          "content": "String 可以被继承",
+          "isCorrect": false,
+          "explanation": "错误！String 是 final 类，不能被继承"
+        }
+      ],
+      "generalExplanation": "String 是 Java 中最常用的类之一，它的不可变性和 final 特性保证了线程安全和安全性。字符串常量池机制可以节省内存并提高性能。",
+      "reference": "《深入理解 Java 虚拟机》第 2 章"
+    },
+    {
+      "id": 5,
+      "type": "JUDGE",
+      "content": "Java 中的基本数据类型都存储在堆内存中。",
+      "options": [
+        {
+          "label": "A",
+          "content": "正确",
+          "isCorrect": false,
+          "explanation": "错误！局部变量的基本数据类型存储在栈内存中"
+        },
+        {
+          "label": "B",
+          "content": "错误",
+          "isCorrect": true,
+          "explanation": "正确！基本数据类型的存储位置取决于其作用域：局部变量在栈中，成员变量在堆中"
+        }
+      ],
+      "generalExplanation": "Java 的内存分配规则：局部变量（包括基本类型和对象引用）存储在栈中，对象实例和成员变量存储在堆中。基本类型作为成员变量时，其值直接存储在对象所在的堆内存中。",
+      "reference": "《Java 虚拟机规范》第 2.5 节"
+    },
+    {
+      "id": 6,
+      "type": "JUDGE",
+      "content": "在 Java 中，== 运算符比较两个对象时，比较的是对象的内容是否相同。",
+      "options": [
+        {
+          "label": "A",
+          "content": "正确",
+          "isCorrect": false,
+          "explanation": "错误！== 比较的是引用地址，不是内容"
+        },
+        {
+          "label": "B",
+          "content": "错误",
+          "isCorrect": true,
+          "explanation": "正确！== 比较的是对象的引用地址是否相同，要比较内容应使用 equals() 方法"
+        }
+      ],
+      "generalExplanation": "这是 Java 初学者常见的误区。== 运算符用于比较基本类型的值或对象的引用地址。要比较对象的内容，应该使用 equals() 方法。String 类重写了 equals() 方法来比较字符串内容。",
+      "reference": "《Effective Java》第 10 条"
+    }
+  ]
+}

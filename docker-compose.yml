@@ -9,13 +9,14 @@ services:
     ports:
       - "8081:8081"
     environment:
-      # 使用远程数据库和 MinIO
-      SPRING_DATASOURCE_URL: jdbc:postgresql://117.50.75.212:5432/dify
-      SPRING_DATASOURCE_USERNAME: postgres
+      # 使用远程 MySQL 数据库和 MinIO
+      SPRING_DATASOURCE_URL: jdbc:mysql://117.50.226.140:3306/dify?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: TyAdmin@2026
-      S3_ENDPOINT: http://117.50.75.212:9000
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      S3_ENDPOINT: http://117.50.226.140:9000
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: TyAdmin@2026
       S3_BUCKET_NAME: ty-ai-flow
       QUIZ_UPLOAD_PATH: quiz-files/
-      QUIZ_PUBLIC_URL: http://117.50.75.212:9000/ty-ai-flow
+      QUIZ_PUBLIC_URL: http://117.50.226.140:9000/ty-ai-flow

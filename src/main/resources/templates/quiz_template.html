@@ -9,12 +9,23 @@
     <style>
         :root {
             --primary-color: #4f46e5;
+            --primary-light: #6366f1;
+            --primary-dark: #4338ca;
             --secondary-color: #f8fafc;
             --success-color: #10b981;
+            --success-light: #34d399;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
             --text-color: #1f2937;
+            --text-light: #6b7280;
             --border-color: #e5e7eb;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
@@ -22,107 +33,254 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: var(--text-color);
+            padding: 0;
+            margin: 0;
         }
 
         .quiz-container {
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 24px;
+            box-shadow: var(--shadow-lg);
             margin: 2rem auto 4rem auto;
             max-width: 900px;
-            overflow: hidden;
+            overflow: visible;
             position: relative;
+            pointer-events: auto;
         }
 
+        /* ==================== Header Styles ==================== */
         .quiz-header {
-            background: linear-gradient(135deg, var(--primary-color) 0%, #6366f1 100%);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
             color: white;
-            padding: 2rem;
+            padding: 1.5rem 2rem;
             text-align: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            border-radius: 20px 20px 0 0;
+            position: relative;
+            border-radius: 24px 24px 0 0;
         }
 
         .quiz-header h1 {
-            margin: 0;
-            font-size: 2.5rem;
+            margin: 0 0 0.5rem 0;
+            font-size: 2rem;
             font-weight: 700;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .quiz-header .subtitle {
-            margin-top: 0.5rem;
-            opacity: 0.9;
-            font-size: 1.1rem;
+        .quiz-header h1 i {
+            margin-right: 0.5rem;
         }
 
         .quiz-meta {
             display: flex;
             justify-content: center;
             gap: 2rem;
-            margin-top: 1rem;
+            margin: 0;
             font-size: 0.95rem;
             opacity: 0.95;
+            flex-wrap: wrap;
         }
 
+        .quiz-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mode-switcher {
+            position: fixed;
+            right: 2rem;
+            top: 8rem;
+            display: flex;
+            flex-direction: row;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 0.4rem;
+            gap: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .mode-switcher.dragging {
+            cursor: grabbing;
+            opacity: 0.9;
+        }
+
+        .mode-btn {
+            background: transparent;
+            color: white;
+            border: none;
+            padding: 0.6rem 1.25rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 600;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .mode-btn i {
+            font-size: 1rem;
+        }
+
+        .mode-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 2px;
+            overflow: hidden;
+            margin: 1rem 0 0 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: white;
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        /* ==================== Content Wrapper ==================== */
         .quiz-content {
             padding: 2rem;
+            pointer-events: auto;
+        }
+
+        .exam-mode, .practice-mode {
+            display: none;
+            opacity: 0;
+        }
+
+        .exam-mode.active, .practice-mode.active {
+            display: block;
+            animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================== Exam Mode Styles ==================== */
+        .quiz-legend {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #bae6fd;
+            border-radius: 16px;
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .legend-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+        }
+
+        .legend-icon.single {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .legend-icon.multi {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .legend-icon.judge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
         .question-card {
             background: var(--secondary-color);
             border: 2px solid var(--border-color);
-            border-radius: 15px;
+            border-radius: 16px;
             margin-bottom: 2rem;
-            padding: 1.5rem;
-            transition: all 0.3s ease;
+            padding: 2rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
 
         .question-card.type-single {
-            border-left: 4px solid #3b82f6;
+            border-left: 5px solid #3b82f6;
         }
 
         .question-card.type-multi {
-            border-left: 4px solid #8b5cf6;
+            border-left: 5px solid #8b5cf6;
         }
 
         .question-card.type-judge {
-            border-left: 4px solid #10b981;
+            border-left: 5px solid #10b981;
         }
 
         .question-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .question-number {
             position: absolute;
-            top: -10px;
-            left: 20px;
+            top: -12px;
+            left: 24px;
             background: var(--primary-color);
             color: white;
-            width: 30px;
-            height: 30px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
-            font-size: 0.9rem;
+            font-weight: 700;
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
         }
 
         .question-type-badge {
             position: absolute;
-            top: -10px;
-            right: 20px;
+            top: -12px;
+            right: 24px;
             color: white;
-            padding: 0.3rem 0.8rem;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            padding: 0.4rem 1rem;
+            border-radius: 16px;
+            font-size: 0.8rem;
             font-weight: 600;
+            box-shadow: var(--shadow-sm);
         }
 
         .question-type-badge.type-single {
@@ -138,69 +296,12 @@
         }
 
         .question-text {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             padding-top: 0.5rem;
-            line-height: 1.6;
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
-        .question-content {
-            flex: 1;
-        }
-
-        /* 引用图标样式 */
-        .reference-icon {
-            margin-left: 0.5rem;
-            color: var(--primary-color);
-            cursor: help;
-            font-size: 1rem;
-            position: relative;
-            display: inline-block;
-            flex-shrink: 0;
-        }
-
-        .reference-icon:hover {
-            color: #6366f1;
-        }
-
-        /* 引用悬停提示框 */
-        .reference-tooltip {
-            visibility: hidden;
-            opacity: 0;
-            position: absolute;
-            z-index: 1000;
-            background: #1f2937;
-            color: white;
-            padding: 0.75rem 1rem;
-            border-radius: 8px;
-            font-size: 0.85rem;
-            font-weight: normal;
-            line-height: 1.5;
-            min-width: 250px;
-            max-width: 350px;
-            top: 100%;
-            right: 0;
-            margin-top: 0.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-
-        .reference-tooltip::before {
-            content: '';
-            position: absolute;
-            bottom: 100%;
-            right: 10px;
-            border: 6px solid transparent;
-            border-bottom-color: #1f2937;
-        }
-
-        .reference-icon:hover .reference-tooltip {
-            visibility: visible;
-            opacity: 1;
+            line-height: 1.7;
+            color: var(--text-color);
         }
 
         .option-list {
@@ -210,53 +311,61 @@
         }
 
         .option-item {
-            margin-bottom: 0.8rem;
-            padding: 0.8rem 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem 1.25rem;
             background: white;
             border: 2px solid var(--border-color);
-            border-radius: 10px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: flex-start;
-            flex-direction: column;
-        }
-
-        .option-content {
-            display: flex;
-            align-items: center;
-            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .option-item:hover {
             border-color: var(--primary-color);
             background: #f8faff;
+            transform: translateX(5px);
         }
 
-        .option-item input[type="radio"],
-        .option-item input[type="checkbox"] {
-            margin-right: 0.8rem;
-            transform: scale(1.2);
+        .option-item input {
+            margin-right: 1rem;
+            transform: scale(1.3);
             accent-color: var(--primary-color);
             cursor: pointer;
         }
 
-        .option-item label {
-            cursor: pointer;
-            margin: 0;
-            flex: 1;
-            font-weight: 500;
+        .option-item.option-correct {
+            background: #dcfce7 !important;
+            border-color: var(--success-color) !important;
+            color: #166534 !important;
+            font-weight: 600;
         }
 
-        /* 选项级反馈框 */
+        .option-item.option-incorrect {
+            background: #fee2e2 !important;
+            border-color: var(--danger-color) !important;
+            color: #991b1b !important;
+        }
+
+        .option-item.option-correct-highlight {
+            background: #bbf7d0 !important;
+            border-color: var(--success-color) !important;
+            color: #166534 !important;
+            font-weight: bold !important;
+        }
+
+        .option-item.option-missed {
+            background: #fef3c7 !important;
+            border-color: var(--warning-color) !important;
+            color: #92400e !important;
+        }
+
         .option-feedback {
             display: none;
             margin-top: 0.8rem;
             padding: 0.8rem 1rem;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 0.9rem;
             line-height: 1.5;
-            width: 100%;
         }
 
         .option-feedback.show {
@@ -293,7 +402,6 @@
             }
         }
 
-        /* 全局解析框 */
         .explanation-box {
             display: none;
             margin-top: 1rem;
@@ -318,143 +426,6 @@
             line-height: 1.6;
         }
 
-        .quiz-legend {
-            background: #f0f9ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.9rem;
-        }
-
-        .legend-icon {
-            width: 20px;
-            height: 20px;
-            border-radius: 4px;
-        }
-
-        .legend-icon.single {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
-        .legend-icon.multi {
-            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-        }
-
-        .legend-icon.judge {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        .quiz-actions {
-            background: var(--secondary-color);
-            padding: 2rem;
-            text-align: center;
-            border-top: 2px solid var(--border-color);
-            display: flex !important;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-            border-radius: 0 0 20px 20px;
-            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-            min-height: 100px;
-            width: 100%;
-        }
-
-        .btn-quiz {
-            padding: 1rem 2.5rem;
-            border-radius: 25px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            transition: all 0.3s ease;
-            border: none;
-            font-size: 1rem;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 180px;
-        }
-
-        .btn-quiz i {
-            margin-right: 0.5rem;
-            font-size: 1.1rem;
-        }
-
-        .btn-check {
-            background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        .btn-check:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5);
-        }
-
-        .btn-check:active {
-            transform: translateY(0);
-        }
-
-        .btn-reset {
-            background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-        }
-
-        .btn-reset:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.5);
-        }
-
-        .btn-reset:active {
-            transform: translateY(0);
-        }
-
-        .score-card {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin: 1rem 0;
-            text-align: center;
-            display: none;
-        }
-
-        .score-card.show {
-            display: block;
-            animation: slideIn 0.5s ease;
-        }
-
-        .score-card.danger {
-            background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
-        }
-
-        .score-card.warning {
-            background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
-        }
-
-        .score-number {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-
-        .score-text {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
         .question-correct {
             border-color: var(--success-color) !important;
             background: #f0fdf4 !important;
@@ -470,35 +441,796 @@
             background: #fffbeb !important;
         }
 
-        .option-correct {
-            background: #dcfce7 !important;
-            border-color: var(--success-color) !important;
-            color: #166534 !important;
+        /* ==================== Practice Mode (Flashcard) Styles ==================== */
+        .practice-mode {
+            min-height: 600px;
         }
 
-        .option-incorrect {
-            background: #fee2e2 !important;
-            border-color: var(--danger-color) !important;
-            color: #991b1b !important;
+        .practice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .option-correct-highlight {
-            background: #bbf7d0 !important;
-            border-color: var(--success-color) !important;
-            color: #166534 !important;
-            font-weight: bold !important;
+        .practice-progress-info {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .option-missed {
-            background: #fef3c7 !important;
-            border-color: var(--warning-color) !important;
-            color: #92400e !important;
+        .practice-stats-mini {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .stat-mini {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            background: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-mini.correct {
+            color: var(--success-color);
+        }
+
+        .stat-mini.incorrect {
+            color: var(--danger-color);
+        }
+
+        .stat-mini i {
+            font-size: 1.2rem;
+        }
+
+        /* Flashcard Container */
+        .flashcard-container {
+            max-width: 750px;
+            margin: 0 auto;
+            perspective: 1500px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            height: 580px;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            flex-shrink: 0;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 3px solid var(--primary-color);
+        }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border: 3px solid var(--success-color);
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .flashcard-type {
+            color: white;
+            padding: 0.4rem 0.9rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .flashcard-type.single {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .flashcard-type.multi {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .flashcard-type.judge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .flashcard-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+            min-height: 0;
+            padding-right: 0.5rem;
+        }
+
+        .flashcard-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .flashcard-content::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 3px;
+        }
+
+        .flashcard-content::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .flashcard-content::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .flashcard-question {
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.7;
+            color: var(--text-color);
+            margin-bottom: 1.25rem;
+            padding: 1.25rem;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.06) 0%, rgba(99, 102, 241, 0.03) 100%);
+            border-radius: 14px;
+            border-left: 4px solid var(--primary-color);
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .question-type-inline {
+            display: inline-block;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .question-type-inline.single {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+
+        .question-type-inline.multi {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .question-type-inline.judge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        /* 引用依据按钮 */
+        .reference-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 0.5rem;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 0.75rem;
+            cursor: help;
+            position: relative;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+
+        .reference-btn:hover {
+            transform: scale(1.15);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .reference-btn i {
+            font-size: 0.7rem;
+            pointer-events: none;
+        }
+
+        .reference-tooltip {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            z-index: 9999;
+            background: #1f2937;
+            color: white;
+            padding: 0.875rem 1.125rem;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: normal;
+            line-height: 1.6;
+            min-width: 200px;
+            max-width: 350px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            transition: opacity 0.3s, visibility 0.3s;
+            white-space: normal;
+            pointer-events: none;
+            word-wrap: break-word;
+        }
+
+        .reference-tooltip.show {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .reference-tooltip::after {
+            content: '';
+            position: absolute;
+            border: 8px solid transparent;
+            border-top-color: #1f2937;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .reference-tooltip.bottom::after {
+            border-top-color: transparent;
+            border-bottom-color: #1f2937;
+            bottom: auto;
+            top: -16px;
+        }
+
+        .flashcard-options {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .flashcard-option {
+            padding: 1rem 1.5rem;
+            background: white;
+            border: 3px solid var(--border-color);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flashcard-option::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(79, 70, 229, 0.08) 0%, transparent 100%);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 0;
+        }
+
+        .flashcard-option:hover::before {
+            width: 100%;
+        }
+
+        .flashcard-option:hover {
+            border-color: var(--primary-color);
+            transform: translateX(8px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .flashcard-option.selected {
+            border-color: var(--primary-color);
+            background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%);
+            font-weight: 600;
+            box-shadow: var(--shadow-md);
+            transform: translateX(8px);
+        }
+
+        .flashcard-option.disabled {
+            pointer-events: none;
+        }
+
+        .flashcard-option.correct {
+            border-color: var(--success-color);
+            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+            animation: correctPulse 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flashcard-option.incorrect {
+            border-color: var(--danger-color);
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            animation: shake 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flashcard-option.missed {
+            border-color: var(--warning-color);
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        }
+
+        @keyframes correctPulse {
+            0%, 100% { transform: scale(1) translateX(8px); }
+            50% { transform: scale(1.03) translateX(8px); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(8px); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(18px); }
+        }
+
+        .flashcard-option-label {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            min-width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
+            z-index: 1;
+        }
+
+        .flashcard-option.correct .flashcard-option-label {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-light) 100%);
+        }
+
+        .flashcard-option.incorrect .flashcard-option-label {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #f87171 100%);
+        }
+
+        .flashcard-option.missed .flashcard-option-label {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #fbbf24 100%);
+        }
+
+        .flashcard-option-text {
+            flex: 1;
+            line-height: 1.6;
+            font-size: 1.05rem;
+            z-index: 1;
+        }
+
+        .flashcard-option-icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+        }
+
+        .flashcard-option.correct .flashcard-option-icon {
+            opacity: 1;
+            color: var(--success-color);
+        }
+
+        .flashcard-option.incorrect .flashcard-option-icon {
+            opacity: 1;
+            color: var(--danger-color);
+        }
+
+        .flashcard-option.missed .flashcard-option-icon {
+            opacity: 1;
+            color: var(--warning-color);
+        }
+
+        /* Flashcard Footer */
+        .flashcard-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding-top: 1rem;
+            border-top: 2px solid var(--border-color);
+            flex-shrink: 0;
+            background: inherit;
+        }
+
+        .flashcard-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .flashcard-btn {
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .flashcard-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .flashcard-btn-submit {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-light) 100%);
+            color: white;
+        }
+
+        .flashcard-btn-submit:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .flashcard-btn-flip {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            display: none;
+        }
+
+        .flashcard-btn-flip.show {
+            display: flex;
+        }
+
+        .flashcard-btn-flip:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .flashcard-btn-back {
+            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+            color: white;
+        }
+
+        .flashcard-btn-back:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .flashcard-hint {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.85rem;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            padding: 0.5rem 0.75rem;
+            background: rgba(107, 114, 128, 0.06);
+            border-radius: 16px;
+        }
+
+        /* Flashcard Back Side */
+        .flashcard-answer {
+            background: white;
+            border-radius: 14px;
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .flashcard-answer-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--success-color);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flashcard-answer-title i {
+            font-size: 1.2rem;
+        }
+
+        .flashcard-answer-content {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        .flashcard-explanation {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 14px;
+            padding: 1.25rem;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: #166534;
+            box-shadow: var(--shadow-sm);
+            flex-shrink: 0;
+        }
+
+        .flashcard-explanation-title {
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #15803d;
+            font-size: 1.05rem;
+        }
+
+        .flashcard-explanation-title i {
+            font-size: 1.2rem;
+        }
+
+        /* Navigation */
+        .flashcard-navigation {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            box-shadow: var(--shadow-sm);
+            font-size: 0.95rem;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .nav-btn:disabled {
+            background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Practice Complete */
+        .practice-complete {
+            text-align: center;
+            padding: 3rem 2rem;
+        }
+
+        .practice-complete-icon {
+            font-size: 6rem;
+            color: var(--success-color);
+            margin-bottom: 2rem;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .practice-complete-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 1rem;
+        }
+
+        .practice-complete-message {
+            font-size: 1.3rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+        }
+
+        .practice-stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 150px;
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+        }
+
+        .stat-icon.correct {
+            color: var(--success-color);
+        }
+
+        .stat-icon.incorrect {
+            color: var(--danger-color);
+        }
+
+        .stat-icon.total {
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+            color: white;
+            border: none;
+            padding: 1rem 3rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            box-shadow: var(--shadow-md);
+            margin-top: 2rem;
+        }
+
+        .btn-restart:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* ==================== Quiz Actions (Exam Mode) ==================== */
+        .quiz-actions {
+            background: var(--secondary-color) !important;
+            padding: 2rem !important;
+            text-align: center;
+            border-top: 2px solid var(--border-color);
+            display: flex !important;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            border-radius: 0 0 24px 24px;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+            min-height: 120px !important;
+            position: relative !important;
+            z-index: 1 !important;
+            pointer-events: auto !important;
+        }
+
+        .quiz-actions.hidden {
+            display: none !important;
+        }
+
+        .btn-quiz {
+            padding: 1rem 2.5rem !important;
+            border-radius: 30px;
+            font-weight: 700 !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            font-size: 1rem !important;
+            cursor: pointer !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+            min-width: 200px !important;
+            box-shadow: var(--shadow-sm);
+            position: relative !important;
+            z-index: 1000 !important;
+            pointer-events: auto !important;
+        }
+
+        .btn-quiz i {
+            margin-right: 0.6rem;
+            font-size: 1.2rem;
+            pointer-events: none;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-light) 100%) !important;
+            color: white !important;
+            border: 3px solid #059669 !important;
+        }
+
+        .btn-check:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #fbbf24 100%) !important;
+            color: white !important;
+            border: 3px solid #d97706 !important;
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .score-card {
+            background: linear-gradient(135deg, var(--success-color) 0%, var(--success-light) 100%);
+            color: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem 0;
+            text-align: center;
+            display: none;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .score-card.show {
+            display: block;
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-card.danger {
+            background: linear-gradient(135deg, var(--danger-color) 0%, #f87171 100%);
+        }
+
+        .score-card.warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #fbbf24 100%);
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-30px);
             }
             to {
                 opacity: 1;
@@ -506,19 +1238,152 @@
             }
         }
 
-        .progress-bar {
-            height: 6px;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 1rem 0;
+        .score-number {
+            font-size: 4rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
         }
 
-        .progress-fill {
-            height: 100%;
-            background: white;
-            width: 0%;
-            transition: width 0.5s ease;
+        .score-text {
+            font-size: 1.5rem;
+            opacity: 0.95;
+        }
+
+        /* ==================== Responsive Design ==================== */
+        @media (max-width: 768px) {
+            .quiz-container {
+                margin: 1rem;
+                border-radius: 20px;
+            }
+
+            .quiz-header {
+                padding: 1.25rem 1rem;
+            }
+
+            .quiz-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .quiz-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+            }
+
+            .mode-switcher {
+                position: static;
+                transform: none;
+                margin-top: 1rem;
+                justify-content: center;
+            }
+
+            .mode-btn {
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .quiz-content {
+                padding: 1.5rem;
+            }
+
+            .question-card {
+                padding: 1.5rem;
+            }
+
+            .flashcard {
+                height: 520px;
+            }
+
+            .flashcard-face {
+                padding: 1.25rem;
+            }
+
+            .flashcard-question {
+                font-size: 1.05rem;
+                padding: 1rem;
+            }
+
+            .flashcard-option {
+                padding: 0.875rem 1.25rem;
+            }
+
+            .flashcard-option-text {
+                font-size: 0.95rem;
+            }
+
+            .practice-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .flashcard-navigation {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .practice-stats-mini {
+                justify-content: center;
+            }
+
+            .quiz-actions {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .btn-quiz {
+                width: 100%;
+            }
+
+            .practice-stats {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .stat-item {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quiz-header h1 {
+                font-size: 1.35rem;
+            }
+
+            .mode-switcher {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            .mode-btn {
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .flashcard {
+                height: 480px;
+            }
+
+            .flashcard-face {
+                padding: 1rem;
+            }
+
+            .flashcard-question {
+                font-size: 1rem;
+                padding: 0.875rem;
+            }
+
+            .score-number {
+                font-size: 3rem;
+            }
+
+            .practice-complete-icon {
+                font-size: 4rem;
+            }
+
+            .practice-complete-title {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
@@ -530,53 +1395,59 @@
                 <span><i class="fas fa-users"></i> 受众：<span th:text="${audience}">初级开发者</span></span>
                 <span><i class="fas fa-bullseye"></i> 目的：<span th:text="${purpose}">入职考核</span></span>
             </div>
-            <div class="subtitle">请仔细阅读题目，选择正确答案</div>
+
+            <!-- 模式切换器 - 在标题右侧 -->
+            <div class="mode-switcher">
+                <button class="mode-btn active" data-mode="exam">
+                    <i class="fas fa-file-alt"></i>
+                    <span>考试模式</span>
+                </button>
+                <button class="mode-btn" data-mode="practice">
+                    <i class="fas fa-layer-group"></i>
+                    <span>练习模式</span>
+                </button>
+            </div>
+
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill"></div>
             </div>
         </div>
 
-        <div class="quiz-content">
-            <!-- 题型图例 -->
+        <!-- 考试模式 -->
+        <div class="quiz-content exam-mode active" id="exam-mode">
             <div class="quiz-legend">
                 <div class="legend-item">
                     <div class="legend-icon single"></div>
-                    <span><i class="fas fa-circle"></i> 单选题 - 选择一个正确答案</span>
+                    <span><i class="fas fa-circle"></i> 单选题</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-icon multi"></div>
-                    <span><i class="fas fa-check-square"></i> 多选题 - 选择所有正确答案</span>
+                    <span><i class="fas fa-check-square"></i> 多选题</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-icon judge"></div>
-                    <span><i class="fas fa-balance-scale"></i> 判断题 - 判断对错</span>
+                    <span><i class="fas fa-balance-scale"></i> 判断题</span>
                 </div>
             </div>
 
-            <div th:each="question, iterStat : ${questions}" 
+            <div th:each="question, iterStat : ${questions}"
                  th:class="'question-card type-' + ${#strings.toLowerCase(question.type)}"
                  th:data-question-id="${question.id}"
                  th:data-question-type="${question.type}">
                 <div class="question-number" th:text="${iterStat.count}">1</div>
                 <div th:class="'question-type-badge type-' + ${#strings.toLowerCase(question.type)}"
                      th:text="${question.type == T(com.example.quiz.model.QuizQuestion$QuestionType).SINGLE ? '单选题' : (question.type == T(com.example.quiz.model.QuizQuestion$QuestionType).MULTI ? '多选题' : '判断题')}">单选题</div>
-                
-                <div class="question-text">
-                    <span class="question-content" th:text="${question.content}">题目内容</span>
-                    <span class="reference-icon" th:if="${question.reference != null}">
-                        <i class="fas fa-book"></i>
-                        <span class="reference-tooltip" th:text="${question.reference}">参考文献</span>
-                    </span>
-                </div>
-                
+
+                <div class="question-text" th:text="${question.content}">题目内容</div>
+
                 <ul class="option-list">
-                    <li th:each="option : ${question.options}" 
+                    <li th:each="option : ${question.options}"
                         class="option-item"
                         th:data-option-label="${option.label}"
                         th:data-option-correct="${option.isCorrect}"
                         th:data-option-explanation="${option.explanation}">
                         <div class="option-content">
-                            <input 
+                            <input
                                 th:type="${question.type == T(com.example.quiz.model.QuizQuestion$QuestionType).MULTI ? 'checkbox' : 'radio'}"
                                 th:name="'question_' + ${question.id}"
                                 th:id="'q' + ${question.id} + '_' + ${option.label}"
@@ -589,7 +1460,7 @@
                         <div class="option-feedback"></div>
                     </li>
                 </ul>
-                
+
                 <div class="explanation-box" th:if="${question.generalExplanation != null}">
                     <div class="explanation-title"><i class="fas fa-lightbulb"></i> 全局解析</div>
                     <div class="explanation-content" th:text="${question.generalExplanation}">解析内容</div>
@@ -602,78 +1473,411 @@
                     <i class="fas fa-trophy"></i>
                     <span id="score-text">您的得分</span>
                 </div>
-                <div style="margin-top: 1rem; font-size: 1rem;">
+                <div style="margin-top: 1rem; font-size: 1.1rem;">
                     <span id="correct-count">0</span> / <span id="total-count">0</span> 题正确
                 </div>
             </div>
         </div>
 
-        <div class="quiz-actions">
-            <button id="check-questions" class="btn-quiz btn-check">
+        <!-- 练习模式 -->
+        <div class="quiz-content practice-mode" id="practice-mode">
+            <div class="practice-header">
+                <div class="practice-progress-info">
+                    <i class="fas fa-layer-group"></i>
+                    题目 <span id="current-card">1</span> / <span id="total-cards">0</span>
+                </div>
+                <div class="flashcard-navigation">
+                    <button class="nav-btn" id="prev-card">
+                        <i class="fas fa-chevron-left"></i> 上一题
+                    </button>
+                    <button class="nav-btn" id="next-card">
+                        下一题 <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="practice-stats-mini">
+                    <div class="stat-mini correct">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="practice-correct-mini">0</span>
+                    </div>
+                    <div class="stat-mini incorrect">
+                        <i class="fas fa-times-circle"></i>
+                        <span id="practice-incorrect-mini">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard">
+                    <!-- 卡片正面 -->
+                    <div class="flashcard-face flashcard-front">
+                        <div class="flashcard-content">
+                            <div class="flashcard-question" id="card-question">
+                                题目内容将在这里显示
+                            </div>
+
+                            <ul class="flashcard-options" id="card-options">
+                                <!-- 选项通过 JavaScript 动态生成 -->
+                            </ul>
+                        </div>
+
+                        <div class="flashcard-footer">
+                            <div class="flashcard-actions">
+                                <button class="flashcard-btn flashcard-btn-submit" id="submit-answer">
+                                    <i class="fas fa-check"></i> 提交答案
+                                </button>
+                                <button class="flashcard-btn flashcard-btn-flip" id="flip-card">
+                                    <i class="fas fa-sync-alt"></i> 查看详解
+                                </button>
+                            </div>
+                            <div class="flashcard-hint">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="hint-text">选择答案后点击"提交答案"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片背面 -->
+                    <div class="flashcard-face flashcard-back">
+                        <div class="flashcard-content">
+                            <div class="flashcard-answer">
+                                <div class="flashcard-answer-title">
+                                    <i class="fas fa-check-circle"></i>
+                                    正确答案
+                                </div>
+                                <div class="flashcard-answer-content" id="answer-content">
+                                    答案将在这里显示
+                                </div>
+                            </div>
+
+                            <div class="flashcard-explanation" id="card-explanation">
+                                <div class="flashcard-explanation-title">
+                                    <i class="fas fa-lightbulb"></i>
+                                    详细解析
+                                </div>
+                                <div id="explanation-content">
+                                    解析内容将在这里显示
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flashcard-footer">
+                            <div class="flashcard-actions">
+                                <button class="flashcard-btn flashcard-btn-back" id="back-to-question">
+                                    <i class="fas fa-arrow-left"></i> 返回题目
+                                </button>
+                            </div>
+                            <div class="flashcard-hint">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>查看完详解后，点击上方"返回题目"继续练习</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 练习完成页面 -->
+            <div class="practice-complete" id="practice-complete" style="display: none;">
+                <div class="practice-complete-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="practice-complete-title">🎉 练习完成！</div>
+                <div class="practice-complete-message">
+                    恭喜你完成所有题目的练习
+                </div>
+                <div class="practice-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-check-circle stat-icon correct"></i>
+                        <div>
+                            <div class="stat-label">答对</div>
+                            <div class="stat-value" id="final-correct">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-times-circle stat-icon incorrect"></i>
+                        <div>
+                            <div class="stat-label">答错</div>
+                            <div class="stat-value" id="final-incorrect">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-percentage stat-icon total"></i>
+                        <div>
+                            <div class="stat-label">正确率</div>
+                            <div class="stat-value" id="final-accuracy">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-restart" id="restart-practice">
+                    <i class="fas fa-redo"></i> 重新练习
+                </button>
+            </div>
+        </div>
+
+        <div class="quiz-actions" id="quiz-actions" style="display: block;">
+            <button id="check-questions" class="btn-quiz btn-check" style="display: inline-flex;" onclick="console.log('按钮直接点击事件触发');">
                 <i class="fas fa-check-circle"></i> 提交答案
             </button>
-            <button id="reset-questions" class="btn-quiz btn-reset">
+            <button id="reset-questions" class="btn-quiz btn-reset" style="display: inline-flex;" onclick="console.log('重置按钮直接点击事件触发');">
                 <i class="fas fa-redo"></i> 重新开始
             </button>
         </div>
     </div>
 
-    <!-- 将题目数据注入为 JavaScript 全局变量 -->
     <script th:inline="javascript">
-        /*<![CDATA[*/
         const QUIZ_DATA = /*[[${questions}]]*/ [];
-        /*]]>*/
     </script>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(function(){
+            let currentMode = 'exam';
+            let currentCardIndex = 0;
+            let practiceStats = { correct: 0, incorrect: 0, answered: [] };
+            let isFlipped = false;
+
+            // 初始化
+            console.log('=== 页面初始化开始 ===');
+            initializePracticeMode();
             updateProgress();
 
+            // 确保考试模式下按钮可见
+            console.log('设置初始模式为考试模式');
+            $('#exam-mode').addClass('active').show();
+            $('#practice-mode').removeClass('active').hide();
+            $('#quiz-actions').removeClass('hidden').show();
+
+            // 检查按钮状态
+            console.log('quiz-actions 是否可见:', $('#quiz-actions').is(':visible'));
+            console.log('quiz-actions 是否有 hidden 类:', $('#quiz-actions').hasClass('hidden'));
+            console.log('提交答案按钮是否存在:', $('#check-questions').length);
+            console.log('重新开始按钮是否存在:', $('#reset-questions').length);
+
+            // 检查按钮的实际样式
+            const $checkBtn = $('#check-questions');
+            const $resetBtn = $('#reset-questions');
+            const $actions = $('#quiz-actions');
+
+            console.log('=== quiz-actions 样式 ===');
+            console.log('display:', $actions.css('display'));
+            console.log('visibility:', $actions.css('visibility'));
+            console.log('opacity:', $actions.css('opacity'));
+            console.log('position:', $actions.css('position'));
+            console.log('z-index:', $actions.css('z-index'));
+
+            console.log('=== 提交答案按钮样式 ===');
+            console.log('display:', $checkBtn.css('display'));
+            console.log('visibility:', $checkBtn.css('visibility'));
+            console.log('opacity:', $checkBtn.css('opacity'));
+            console.log('width:', $checkBtn.css('width'));
+            console.log('height:', $checkBtn.css('height'));
+            console.log('background:', $checkBtn.css('background'));
+            console.log('position:', $checkBtn.css('position'));
+            console.log('top:', $checkBtn.css('top'));
+            console.log('left:', $checkBtn.css('left'));
+            console.log('transform:', $checkBtn.css('transform'));
+
+            // 获取按钮的实际位置
+            const checkBtnOffset = $checkBtn.offset();
+            console.log('按钮在页面中的位置:', checkBtnOffset);
+            console.log('按钮的 boundingClientRect:', $checkBtn[0].getBoundingClientRect());
+
+            console.log('=== 重新开始按钮样式 ===');
+            console.log('display:', $resetBtn.css('display'));
+            console.log('visibility:', $resetBtn.css('visibility'));
+            console.log('opacity:', $resetBtn.css('opacity'));
+
+            // 检查是否有其他元素遮挡
+            const checkBtnRect = $checkBtn[0].getBoundingClientRect();
+            const elementAtPoint = document.elementFromPoint(
+                checkBtnRect.left + checkBtnRect.width / 2,
+                checkBtnRect.top + checkBtnRect.height / 2
+            );
+            console.log('=== 按钮位置上的元素 ===');
+            console.log('按钮中心点的元素:', elementAtPoint);
+            console.log('是否是按钮本身:', elementAtPoint === $checkBtn[0] || $checkBtn[0].contains(elementAtPoint));
+
+            // 模式切换器拖动功能
+            let isDragging = false;
+            let hasMoved = false;
+            let dragStartX = 0;
+            let dragStartY = 0;
+            let elementStartLeft = 0;
+            let elementStartTop = 0;
+            const $modeSwitcher = $('.mode-switcher');
+            const DRAG_THRESHOLD = 5; // 最小移动距离（像素）
+
+            $modeSwitcher.on('mousedown touchstart', function(e) {
+                // 如果点击的是按钮，不触发拖动
+                if ($(e.target).hasClass('mode-btn') || $(e.target).closest('.mode-btn').length) {
+                    return;
+                }
+
+                // 获取当前元素的位置
+                const rect = this.getBoundingClientRect();
+                elementStartLeft = rect.left;
+                elementStartTop = rect.top;
+
+                if (e.type === 'touchstart') {
+                    dragStartX = e.touches[0].clientX;
+                    dragStartY = e.touches[0].clientY;
+                } else {
+                    dragStartX = e.clientX;
+                    dragStartY = e.clientY;
+                    e.preventDefault();
+                }
+
+                isDragging = true;
+                hasMoved = false;
+
+                console.log('按下鼠标，起始位置:', {
+                    mouseX: dragStartX,
+                    mouseY: dragStartY,
+                    elementLeft: elementStartLeft,
+                    elementTop: elementStartTop
+                });
+            });
+
+            $(document).on('mousemove touchmove', function(e) {
+                if (!isDragging) return;
+
+                let clientX, clientY;
+                if (e.type === 'touchmove') {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                // 计算移动距离
+                const deltaX = clientX - dragStartX;
+                const deltaY = clientY - dragStartY;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                // 只有移动超过阈值才开始拖动
+                if (!hasMoved && distance > DRAG_THRESHOLD) {
+                    hasMoved = true;
+                    $modeSwitcher.addClass('dragging');
+                    console.log('开始拖动');
+                }
+
+                if (!hasMoved) return;
+
+                e.preventDefault();
+
+                // 计算新位置 = 元素起始位置 + 鼠标移动距离
+                let newLeft = elementStartLeft + deltaX;
+                let newTop = elementStartTop + deltaY;
+
+                // 限制在视口范围内
+                const switcherWidth = $modeSwitcher.outerWidth();
+                const switcherHeight = $modeSwitcher.outerHeight();
+                const maxLeft = $(window).width() - switcherWidth;
+                const maxTop = $(window).height() - switcherHeight;
+
+                newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+                newTop = Math.max(0, Math.min(newTop, maxTop));
+
+                $modeSwitcher.css({
+                    left: newLeft + 'px',
+                    top: newTop + 'px',
+                    right: 'auto',
+                    bottom: 'auto'
+                });
+            });
+
+            $(document).on('mouseup touchend touchcancel', function(e) {
+                if (isDragging) {
+                    if (hasMoved) {
+                        console.log('拖动结束');
+                    } else {
+                        console.log('单击（未拖动）');
+                    }
+                    isDragging = false;
+                    hasMoved = false;
+                    $modeSwitcher.removeClass('dragging');
+                }
+            });
+
+            // 模式切换
+            $('.mode-btn').on('click', function() {
+                const mode = $(this).data('mode');
+                console.log('=== 切换模式 ===');
+                console.log('目标模式:', mode);
+                console.log('当前模式:', currentMode);
+                
+                if (currentMode === mode) {
+                    console.log('已经是当前模式，不需要切换');
+                    return;
+                }
+                
+                currentMode = mode;
+                $('.mode-btn').removeClass('active');
+                $(this).addClass('active');
+
+                if (mode === 'exam') {
+                    console.log('切换到考试模式');
+                    $('#exam-mode').removeClass('active').fadeOut(200, function() {
+                        $(this).addClass('active').fadeIn(300);
+                    });
+                    $('#practice-mode').removeClass('active').hide();
+                    $('#quiz-actions').removeClass('hidden').show();
+                    console.log('考试模式 - quiz-actions 显示状态:', $('#quiz-actions').is(':visible'));
+                } else {
+                    console.log('切换到练习模式');
+                    $('#practice-mode').removeClass('active').fadeOut(200, function() {
+                        $(this).addClass('active').fadeIn(300);
+                        loadFlashcard(currentCardIndex);
+                    });
+                    $('#exam-mode').removeClass('active').hide();
+                    $('#quiz-actions').addClass('hidden').hide();
+                    console.log('练习模式 - quiz-actions 显示状态:', $('#quiz-actions').is(':visible'));
+                }
+            });
+
+            // ==================== 考试模式逻辑 ====================
             function updateProgress() {
-                var totalQuestions = $('.question-card').length;
-                var answeredQuestions = 0;
+                const totalQuestions = $('.question-card').length;
+                let answeredQuestions = 0;
 
                 $('.question-card').each(function() {
-                    var hasAnswer = $(this).find('input:checked').length > 0;
-                    if (hasAnswer) answeredQuestions++;
+                    if ($(this).find('input:checked').length > 0) answeredQuestions++;
                 });
 
-                var progress = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0;
+                const progress = totalQuestions > 0 ? (answeredQuestions / totalQuestions) * 100 : 0;
                 $('#progress-fill').css('width', progress + '%');
             }
 
             function checkQuestion() {
-                var questions = $('.question-card');
-                var total = questions.length;
-                var correct = 0;
+                const questions = $('.question-card');
+                const total = questions.length;
+                let correct = 0;
 
                 questions.each(function() {
-                    var $card = $(this);
-                    var questionId = $card.data('question-id');
-                    var questionType = $card.data('question-type');
-                    var isSingle = questionType === 'SINGLE' || questionType === 'JUDGE';
-                    var isMulti = questionType === 'MULTI';
+                    const $card = $(this);
+                    const questionType = $card.data('question-type');
+                    const isSingle = questionType === 'SINGLE' || questionType === 'JUDGE';
                     
                     // 清除之前的反馈
                     $card.find('.option-feedback').removeClass('show error success warning').empty();
+                    $card.find('.option-item').removeClass('option-correct option-incorrect option-correct-highlight option-missed');
+                    $card.removeClass('question-correct question-incorrect question-partial');
                     
                     if (isSingle) {
-                        var $selected = $card.find('input[type="radio"]:checked');
-                        var $correctOption = $card.find('input[data-correct="true"]');
+                        const $selected = $card.find('input[type="radio"]:checked');
+                        const $correctOption = $card.find('input[data-correct="true"]');
                         
                         if ($selected.length > 0 && $selected.data('correct') === true) {
                             correct += 1;
                             $card.addClass('question-correct');
                             $selected.closest('.option-item').addClass('option-correct');
                             
-                            // 显示正确选项的解释（如果有）
-                            var $optionItem = $selected.closest('.option-item');
-                            var explanation = $optionItem.data('option-explanation');
+                            const $optionItem = $selected.closest('.option-item');
+                            const explanation = $optionItem.data('option-explanation');
                             if (explanation) {
-                                var $feedback = $optionItem.find('.option-feedback');
+                                const $feedback = $optionItem.find('.option-feedback');
                                 $feedback.addClass('show success')
-                                    .html('<i class="fas fa-check-circle"></i> ' + explanation);
+                                    .html('<i class="fas fa-check-circle"></i> <strong>正确！</strong> ' + explanation);
                             }
                         } else {
                             $card.addClass('question-incorrect');
@@ -681,59 +1885,63 @@
                             if ($selected.length > 0) {
                                 $selected.closest('.option-item').addClass('option-incorrect');
                                 
-                                // 显示错误选项的解释
-                                var $optionItem = $selected.closest('.option-item');
-                                var explanation = $optionItem.data('option-explanation');
+                                const $optionItem = $selected.closest('.option-item');
+                                const explanation = $optionItem.data('option-explanation');
                                 if (explanation) {
-                                    var $feedback = $optionItem.find('.option-feedback');
+                                    const $feedback = $optionItem.find('.option-feedback');
                                     $feedback.addClass('show error')
-                                        .html('<i class="fas fa-times-circle"></i> ' + explanation);
+                                        .html('<i class="fas fa-times-circle"></i> <strong>错误！</strong> ' + explanation);
                                 }
                             }
                             
                             $correctOption.closest('.option-item').addClass('option-correct-highlight');
+                            const $correctItem = $correctOption.closest('.option-item');
+                            const correctExplanation = $correctItem.data('option-explanation');
+                            if (correctExplanation) {
+                                const $feedback = $correctItem.find('.option-feedback');
+                                $feedback.addClass('show success')
+                                    .html('<i class="fas fa-check-circle"></i> <strong>正确答案：</strong> ' + correctExplanation);
+                            }
+                            
                             $card.find('.explanation-box').addClass('show');
                         }
-                    } else if (isMulti) {
-                        var $allCorrect = $card.find('input[data-correct="true"]');
-                        var $allIncorrect = $card.find('input[data-correct="false"]');
-                        var correctSelected = $card.find('input[data-correct="true"]:checked').length;
-                        var incorrectSelected = $card.find('input[data-correct="false"]:checked').length;
+                    } else {
+                        const $allCorrect = $card.find('input[data-correct="true"]');
+                        const correctSelected = $card.find('input[data-correct="true"]:checked').length;
+                        const incorrectSelected = $card.find('input[data-correct="false"]:checked').length;
                         
                         $card.find('input').each(function() {
-                            var $input = $(this);
-                            var $item = $input.closest('.option-item');
-                            var isCorrect = $input.data('correct') === true;
-                            var isChecked = $input.is(':checked');
-                            var explanation = $item.data('option-explanation');
+                            const $input = $(this);
+                            const $item = $input.closest('.option-item');
+                            const isCorrect = $input.data('correct') === true;
+                            const isChecked = $input.is(':checked');
+                            const explanation = $item.data('option-explanation');
                             
                             if (isChecked) {
                                 $item.addClass(isCorrect ? 'option-correct' : 'option-incorrect');
                                 
-                                // 显示选项级反馈
                                 if (explanation) {
-                                    var $feedback = $item.find('.option-feedback');
+                                    const $feedback = $item.find('.option-feedback');
                                     if (isCorrect) {
                                         $feedback.addClass('show success')
-                                            .html('<i class="fas fa-check-circle"></i> ' + explanation);
+                                            .html('<i class="fas fa-check-circle"></i> <strong>正确！</strong> ' + explanation);
                                     } else {
                                         $feedback.addClass('show error')
-                                            .html('<i class="fas fa-times-circle"></i> ' + explanation);
+                                            .html('<i class="fas fa-times-circle"></i> <strong>错误！</strong> ' + explanation);
                                     }
                                 }
                             } else if (isCorrect) {
                                 $item.addClass('option-missed');
                                 
-                                // 显示漏选的提示
                                 if (explanation) {
-                                    var $feedback = $item.find('.option-feedback');
+                                    const $feedback = $item.find('.option-feedback');
                                     $feedback.addClass('show warning')
-                                        .html('<i class="fas fa-exclamation-triangle"></i> 漏选：' + explanation);
+                                        .html('<i class="fas fa-exclamation-triangle"></i> <strong>漏选！</strong> ' + explanation);
                                 }
                             }
                         });
                         
-                        var score = 0;
+                        let score = 0;
                         if ($allCorrect.length > 0) {
                             score = (correctSelected / $allCorrect.length) - (incorrectSelected / $allCorrect.length);
                             if (score < 0) score = 0;
@@ -757,23 +1965,23 @@
             }
 
             function showScore(correct, total) {
-                var score = Math.round((correct / total) * 100);
+                const score = Math.round((correct / total) * 100);
                 $('#score-number').text(score + '%');
                 $('#correct-count').text(Math.round(correct * 10) / 10);
                 $('#total-count').text(total);
 
-                var $scoreCard = $('#score-display');
+                const $scoreCard = $('#score-display');
                 $scoreCard.removeClass('show danger warning');
 
                 if (score >= 80) {
                     $scoreCard.addClass('show');
-                    $('#score-text').html('<i class="fas fa-trophy"></i> 优秀！');
+                    $('#score-text').html('<i class="fas fa-trophy"></i> 优秀！继续保持');
                 } else if (score >= 60) {
                     $scoreCard.addClass('show warning');
-                    $('#score-text').html('<i class="fas fa-medal"></i> 良好！');
+                    $('#score-text').html('<i class="fas fa-medal"></i> 良好！继续努力');
                 } else {
                     $scoreCard.addClass('show danger');
-                    $('#score-text').html('<i class="fas fa-times-circle"></i> 需要努力！');
+                    $('#score-text').html('<i class="fas fa-times-circle"></i> 需要加油！');
                 }
 
                 $('html, body').animate({
@@ -784,8 +1992,6 @@
             function resetQuestions() {
                 $('.question-card').removeClass('question-correct question-incorrect question-partial');
                 $('.option-item').removeClass('option-correct option-incorrect option-correct-highlight option-missed');
-                $('.option-feedback').removeClass('show error success warning').empty();
-                $('.explanation-box').removeClass('show');
                 $('#score-display').removeClass('show danger warning');
                 $('input[type="radio"], input[type="checkbox"]').prop('checked', false);
                 $('#progress-fill').css('width', '0%');
@@ -793,11 +1999,29 @@
 
             $('#check-questions').on('click', checkQuestion);
             $('#reset-questions').on('click', resetQuestions);
+            
+            // 测试按钮点击
+            $('#check-questions').on('click', function(e) {
+                console.log('=== 提交答案按钮被点击 ===');
+                console.log('事件对象:', e);
+                console.log('目标元素:', e.target);
+                console.log('当前元素:', e.currentTarget);
+            });
+            
+            $('#reset-questions').on('click', function(e) {
+                console.log('=== 重新开始按钮被点击 ===');
+                console.log('事件对象:', e);
+            });
+            
+            console.log('=== 事件绑定完成 ===');
+            console.log('提交答案按钮绑定状态:', $._data($('#check-questions')[0], 'events'));
+            console.log('重新开始按钮绑定状态:', $._data($('#reset-questions')[0], 'events'));
+            
             $(document).on('change', 'input[type="radio"], input[type="checkbox"]', updateProgress);
             
             $(document).on('click', '.option-item', function(e) {
                 if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
-                    var $input = $(this).find('input');
+                    const $input = $(this).find('input');
                     if ($input.attr('type') === 'radio') {
                         $input.prop('checked', true);
                     } else {
@@ -808,6 +2032,264 @@
             });
 
             $('#total-count').text($('.question-card').length);
+            
+            console.log('=== 初始化完成 ===');
+            console.log('题目总数:', $('.question-card').length);
+            console.log('当前模式:', currentMode);
+            console.log('页面加载完成');
+
+            // ==================== 练习模式逻辑 ====================
+            function initializePracticeMode() {
+                $('#total-cards').text(QUIZ_DATA.length);
+                practiceStats.answered = new Array(QUIZ_DATA.length).fill(null);
+            }
+
+            function loadFlashcard(index) {
+                if (index < 0 || index >= QUIZ_DATA.length) return;
+
+                const question = QUIZ_DATA[index];
+                currentCardIndex = index;
+                isFlipped = false;
+
+                $('#flashcard').removeClass('flipped');
+                $('#submit-answer').show();
+                $('#flip-card').removeClass('show');
+                $('#hint-text').text('选择答案后点击"提交答案"');
+
+                $('#current-card').text(index + 1);
+
+                const typeMap = {
+                    'SINGLE': { text: '单选', class: 'single' },
+                    'MULTI': { text: '多选', class: 'multi' },
+                    'JUDGE': { text: '判断', class: 'judge' }
+                };
+                const typeInfo = typeMap[question.type] || typeMap['SINGLE'];
+                
+                // 将题型标签嵌入到题目中，并添加引用依据按钮
+                const typeLabel = `<span class="question-type-inline ${typeInfo.class}">${typeInfo.text}</span>`;
+                let questionHtml = typeLabel + question.content;
+                
+                // 如果有引用依据，添加按钮
+                if (question.reference) {
+                    const safeReference = question.reference.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    questionHtml += `<span class="reference-btn" data-reference="${safeReference}">
+                        <i class="fas fa-book"></i>
+                    </span>`;
+                }
+                
+                $('#card-question').html(questionHtml);
+                
+                // 为引用按钮添加 hover 事件
+                $('.reference-btn').off('mouseenter mouseleave').on('mouseenter', function(e) {
+                    const $btn = $(this);
+                    const reference = $btn.attr('data-reference');
+                    
+                    // 创建 tooltip
+                    const $tooltip = $('<div class="reference-tooltip show"></div>').text(reference);
+                    $('body').append($tooltip);
+                    
+                    // 计算位置
+                    const btnRect = $btn[0].getBoundingClientRect();
+                    const tooltipWidth = $tooltip.outerWidth();
+                    const tooltipHeight = $tooltip.outerHeight();
+                    
+                    let top = btnRect.top - tooltipHeight - 16;
+                    let left = btnRect.left + (btnRect.width / 2) - (tooltipWidth / 2);
+                    
+                    // 检查是否超出视口
+                    if (top < 10) {
+                        // 显示在下方
+                        top = btnRect.bottom + 16;
+                        $tooltip.addClass('bottom');
+                    }
+                    
+                    if (left < 10) {
+                        left = 10;
+                    } else if (left + tooltipWidth > $(window).width() - 10) {
+                        left = $(window).width() - tooltipWidth - 10;
+                    }
+                    
+                    $tooltip.css({
+                        top: top + 'px',
+                        left: left + 'px'
+                    });
+                    
+                    // 保存 tooltip 引用
+                    $btn.data('tooltip', $tooltip);
+                }).on('mouseleave', function() {
+                    const $btn = $(this);
+                    const $tooltip = $btn.data('tooltip');
+                    if ($tooltip) {
+                        $tooltip.remove();
+                        $btn.removeData('tooltip');
+                    }
+                });
+
+                const $options = $('#card-options');
+                $options.empty();
+                question.options.forEach(option => {
+                    const $li = $('<li>')
+                        .addClass('flashcard-option')
+                        .attr('data-label', option.label)
+                        .attr('data-correct', option.isCorrect)
+                        .html(`
+                            <div class="flashcard-option-label">${option.label}</div>
+                            <div class="flashcard-option-text">${option.content}</div>
+                        `);
+                    $options.append($li);
+                });
+
+                const correctOptions = question.options.filter(o => o.isCorrect);
+                const answerText = correctOptions.map(o => `<strong>${o.label}.</strong> ${o.content}`).join('<br><br>');
+                $('#answer-content').html(answerText);
+
+                let explanationHtml = '';
+                if (question.generalExplanation) {
+                    explanationHtml = question.generalExplanation;
+                }
+                
+                const optionExplanations = question.options
+                    .filter(o => o.explanation)
+                    .map(o => `<strong>${o.label}.</strong> ${o.explanation}`)
+                    .join('<br><br>');
+                
+                if (optionExplanations) {
+                    if (explanationHtml) explanationHtml += '<br><br>';
+                    explanationHtml += optionExplanations;
+                }
+
+                if (explanationHtml) {
+                    $('#card-explanation').show();
+                    $('#explanation-content').html(explanationHtml);
+                } else {
+                    $('#card-explanation').hide();
+                }
+
+                $('#prev-card').prop('disabled', index === 0);
+                $('#next-card').prop('disabled', index === QUIZ_DATA.length - 1);
+            }
+
+            $(document).on('click', '.flashcard-option', function() {
+                if ($(this).hasClass('disabled')) return;
+
+                const question = QUIZ_DATA[currentCardIndex];
+                const $option = $(this);
+
+                if (question.type === 'MULTI') {
+                    $option.toggleClass('selected');
+                } else {
+                    $('.flashcard-option').removeClass('selected');
+                    $option.addClass('selected');
+                }
+            });
+
+            $('#submit-answer').on('click', function() {
+                const selectedOptions = $('.flashcard-option.selected');
+                if (selectedOptions.length === 0) {
+                    alert('请先选择答案！');
+                    return;
+                }
+
+                $('.flashcard-option').addClass('disabled');
+                $(this).hide();
+                $('#flip-card').addClass('show');
+                $('#hint-text').text('点击"查看详解"翻转卡片');
+
+                const userAnswer = selectedOptions.map(function() {
+                    return $(this).attr('data-label');
+                }).get();
+
+                const question = QUIZ_DATA[currentCardIndex];
+                $('.flashcard-option').each(function() {
+                    const $opt = $(this);
+                    const isCorrect = $opt.attr('data-correct') === 'true';
+                    const isSelected = $opt.hasClass('selected');
+                    
+                    if (isSelected && isCorrect) {
+                        $opt.addClass('correct');
+                        $opt.append('<i class="fas fa-check-circle flashcard-option-icon"></i>');
+                    } else if (isSelected && !isCorrect) {
+                        $opt.addClass('incorrect');
+                        $opt.append('<i class="fas fa-times-circle flashcard-option-icon"></i>');
+                    } else if (!isSelected && isCorrect) {
+                        $opt.addClass('missed');
+                        $opt.append('<i class="fas fa-exclamation-circle flashcard-option-icon"></i>');
+                    }
+                });
+
+                recordAnswer(userAnswer);
+            });
+
+            $('#flip-card').on('click', function() {
+                $('#flashcard').toggleClass('flipped');
+                isFlipped = !isFlipped;
+            });
+
+            $('#back-to-question').on('click', function() {
+                $('#flashcard').removeClass('flipped');
+                isFlipped = false;
+            });
+
+            $('#prev-card').on('click', function() {
+                if (currentCardIndex > 0) {
+                    loadFlashcard(currentCardIndex - 1);
+                }
+            });
+
+            $('#next-card').on('click', function() {
+                if (currentCardIndex < QUIZ_DATA.length - 1) {
+                    loadFlashcard(currentCardIndex + 1);
+                } else {
+                    showPracticeComplete();
+                }
+            });
+
+            function recordAnswer(userAnswer) {
+                const question = QUIZ_DATA[currentCardIndex];
+                const correctAnswers = question.options
+                    .filter(o => o.isCorrect)
+                    .map(o => o.label)
+                    .sort();
+                const isCorrect = JSON.stringify(userAnswer.sort()) === JSON.stringify(correctAnswers);
+
+                if (practiceStats.answered[currentCardIndex] === null) {
+                    if (isCorrect) {
+                        practiceStats.correct++;
+                    } else {
+                        practiceStats.incorrect++;
+                    }
+                }
+
+                practiceStats.answered[currentCardIndex] = userAnswer;
+                updatePracticeStats();
+            }
+
+            function updatePracticeStats() {
+                $('#practice-correct-mini').text(practiceStats.correct);
+                $('#practice-incorrect-mini').text(practiceStats.incorrect);
+            }
+
+            function showPracticeComplete() {
+                $('.flashcard-container, .practice-header').hide();
+                $('#practice-complete').fadeIn(500);
+
+                $('#final-correct').text(practiceStats.correct);
+                $('#final-incorrect').text(practiceStats.incorrect);
+                
+                const total = QUIZ_DATA.length;
+                const accuracy = total > 0 ? Math.round((practiceStats.correct / total) * 100) : 0;
+                $('#final-accuracy').text(accuracy + '%');
+            }
+
+            $('#restart-practice').on('click', function() {
+                practiceStats = { correct: 0, incorrect: 0, answered: new Array(QUIZ_DATA.length).fill(null) };
+                currentCardIndex = 0;
+                updatePracticeStats();
+
+                $('#practice-complete').hide();
+                $('.flashcard-container, .practice-header').show();
+                loadFlashcard(0);
+            });
         });
     </script>
 </body>
