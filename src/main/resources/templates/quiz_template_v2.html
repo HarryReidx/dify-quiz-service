@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title th:text="${title}">清云考培</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/quiz-styles.css">
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            <h1><i class="fas fa-graduation-cap"></i> <span th:text="${title}">试卷标题</span></h1>
+            <div class="quiz-meta">
+                <span><i class="fas fa-users"></i> 受众：<span th:text="${audience}">初级开发者</span></span>
+            </div>
+            <div class="quiz-purpose">
+                <i class="fas fa-bullseye"></i>
+                <span class="quiz-purpose-label">目的：</span>
+                <span class="quiz-purpose-text" th:text="${purpose}">入职考核</span>
+            </div>
+
+            <!-- 模式切换器 - 在标题右侧 -->
+            <div class="mode-switcher">
+                <button class="mode-btn active" data-mode="exam">
+                    <i class="fas fa-file-alt"></i>
+                    <span>考试模式</span>
+                </button>
+                <button class="mode-btn" data-mode="practice">
+                    <i class="fas fa-layer-group"></i>
+                    <span>练习模式</span>
+                </button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <!-- 考试模式 -->
+        <div class="quiz-content exam-mode active" id="exam-mode">
+            <div class="quiz-legend">
+                <div class="legend-item">
+                    <div class="legend-icon single"></div>
+                    <span><i class="fas fa-circle"></i> 单选题</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon multi"></div>
+                    <span><i class="fas fa-check-square"></i> 多选题</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-icon judge"></div>
+                    <span><i class="fas fa-balance-scale"></i> 判断题</span>
+                </div>
+            </div>
+
+            <div th:each="question, iterStat : ${questions}"
+                 th:class="'question-card type-' + ${#strings.toLowerCase(question.type)}"
+                 th:data-question-id="${question.id}"
+                 th:data-question-type="${question.type}">
+                <div class="question-number" th:text="${iterStat.count}">1</div>
+                <div th:class="'question-type-badge type-' + ${#strings.toLowerCase(question.type)}"
+                     th:text="${question.type == T(com.example.quiz.model.QuizQuestion$QuestionType).SINGLE ? '单选题' : (question.type == T(com.example.quiz.model.QuizQuestion$QuestionType).MULTI ? '多选题' : '判断题')}">单选题</div>
+
+                <div class="question-text" th:text="${question.content}">题目内容</div>
+
+                <ul class="option-list">
+                    <li th:each="option : ${question.options}"
+                        class="option-item"
+                        th:data-option-label="${option.label}"
+                        th:data-option-correct="${option.isCorrect}"
+                        th:data-option-explanation="${option.explanation}">
+                        <div class="option-content">
+                            <input
+                                th:type="${question.type == T(com.example.quiz.model.QuizQuestion$QuestionType).MULTI ? 'checkbox' : 'radio'}"
+                                th:name="'question_' + ${question.id}"
+                                th:id="'q' + ${question.id} + '_' + ${option.label}"
+                                th:data-correct="${option.isCorrect}"
+                                th:value="${option.label}">
+                            <label th:for="'q' + ${question.id} + '_' + ${option.label}">
+                                <span th:text="${option.label}">A</span>. <span th:text="${option.content}">选项内容</span>
+                            </label>
+                        </div>
+                        <div class="option-feedback"></div>
+                    </li>
+                </ul>
+
+                <div class="explanation-box" th:if="${question.generalExplanation != null}">
+                    <div class="explanation-title"><i class="fas fa-lightbulb"></i> 全局解析</div>
+                    <div class="explanation-content" th:text="${question.generalExplanation}">解析内容</div>
+                </div>
+            </div>
+
+            <div id="score-display" class="score-card">
+                <div class="score-number" id="score-number">0%</div>
+                <div class="score-text">
+                    <i class="fas fa-trophy"></i>
+                    <span id="score-text">您的得分</span>
+                </div>
+                <div style="margin-top: 1rem; font-size: 1.1rem;">
+                    <span id="correct-count">0</span> / <span id="total-count">0</span> 题正确
+                </div>
+            </div>
+        </div>
+
+        <!-- 练习模式 -->
+        <div class="quiz-content practice-mode" id="practice-mode">
+            <div class="practice-header">
+                <div class="practice-progress-info">
+                    <i class="fas fa-layer-group"></i>
+                    题目 <span id="current-card">1</span> / <span id="total-cards">0</span>
+                </div>
+                <div class="flashcard-navigation">
+                    <button class="nav-btn" id="prev-card">
+                        <i class="fas fa-chevron-left"></i> 上一题
+                    </button>
+                    <button class="nav-btn" id="next-card">
+                        下一题 <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="practice-stats-mini">
+                    <div class="stat-mini correct">
+                        <i class="fas fa-check-circle"></i>
+                        <span id="practice-correct-mini">0</span>
+                    </div>
+                    <div class="stat-mini incorrect">
+                        <i class="fas fa-times-circle"></i>
+                        <span id="practice-incorrect-mini">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard">
+                    <!-- 卡片正面 -->
+                    <div class="flashcard-face flashcard-front">
+                        <div class="flashcard-content">
+                            <div class="flashcard-question" id="card-question">
+                                题目内容将在这里显示
+                            </div>
+
+                            <ul class="flashcard-options" id="card-options">
+                                <!-- 选项通过 JavaScript 动态生成 -->
+                            </ul>
+                        </div>
+
+                        <div class="flashcard-footer">
+                            <div class="flashcard-actions">
+                                <button class="flashcard-btn flashcard-btn-submit" id="submit-answer">
+                                    <i class="fas fa-check"></i> 提交答案
+                                </button>
+                                <button class="flashcard-btn flashcard-btn-flip" id="flip-card">
+                                    <i class="fas fa-sync-alt"></i> 查看详解
+                                </button>
+                            </div>
+                            <div class="flashcard-hint">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="hint-text">选择答案后点击"提交答案"</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 卡片背面 -->
+                    <div class="flashcard-face flashcard-back">
+                        <div class="flashcard-content">
+                            <div class="flashcard-answer">
+                                <div class="flashcard-answer-title">
+                                    <i class="fas fa-check-circle"></i>
+                                    正确答案
+                                </div>
+                                <div class="flashcard-answer-content" id="answer-content">
+                                    答案将在这里显示
+                                </div>
+                            </div>
+
+                            <div class="flashcard-explanation" id="card-explanation">
+                                <div class="flashcard-explanation-title">
+                                    <i class="fas fa-lightbulb"></i>
+                                    详细解析
+                                </div>
+                                <div id="explanation-content">
+                                    解析内容将在这里显示
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flashcard-footer">
+                            <div class="flashcard-actions">
+                                <button class="flashcard-btn flashcard-btn-back" id="back-to-question">
+                                    <i class="fas fa-arrow-left"></i> 返回题目
+                                </button>
+                            </div>
+                            <div class="flashcard-hint">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>查看完详解后，点击上方"返回题目"继续练习</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 练习完成页面 -->
+            <div class="practice-complete" id="practice-complete" style="display: none;">
+                <div class="practice-complete-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <div class="practice-complete-title">🎉 练习完成！</div>
+                <div class="practice-complete-message">
+                    恭喜你完成所有题目的练习
+                </div>
+                <div class="practice-stats">
+                    <div class="stat-item">
+                        <i class="fas fa-check-circle stat-icon correct"></i>
+                        <div>
+                            <div class="stat-label">答对</div>
+                            <div class="stat-value" id="final-correct">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-times-circle stat-icon incorrect"></i>
+                        <div>
+                            <div class="stat-label">答错</div>
+                            <div class="stat-value" id="final-incorrect">0</div>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-percentage stat-icon total"></i>
+                        <div>
+                            <div class="stat-label">正确率</div>
+                            <div class="stat-value" id="final-accuracy">0%</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-restart" id="restart-practice">
+                    <i class="fas fa-redo"></i> 重新练习
+                </button>
+            </div>
+        </div>
+
+        <div class="quiz-actions" id="quiz-actions" style="display: block;">
+            <button id="check-questions" class="btn-quiz btn-check" style="display: inline-flex;" onclick="console.log('按钮直接点击事件触发');">
+                <i class="fas fa-check-circle"></i> 提交答案
+            </button>
+            <button id="reset-questions" class="btn-quiz btn-reset" style="display: inline-flex;" onclick="console.log('重置按钮直接点击事件触发');">
+                <i class="fas fa-redo"></i> 重新开始
+            </button>
+        </div>
+    </div>
+
+    <!-- Powered By Footer -->
+    <div class="powered-by-footer">
+        <span class="footer-text">POWERED BY 武汉研发中心</span>
+        <img src="tsingyun-ai-logo-白.svg" alt="Logo" class="footer-logo" onerror="this.style.display='none'">
+    </div>
+
+    <script th:inline="javascript">
+        const QUIZ_DATA = /*[[${questions}]]*/ [];
+    </script><script src="https://code.jquery.com/jquery-3.6.0.min.js"></script><script src="/js/quiz-script.js"></script>
+</body>
+</html>
